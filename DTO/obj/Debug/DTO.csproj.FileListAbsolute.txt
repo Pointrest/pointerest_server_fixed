@@ -1,4 +1,0 @@
-C:\Users\vuric_000\Documents\Visual Studio 2013\Projects\AllPointerest\DTO\bin\Debug\DTO.dll
-C:\Users\vuric_000\Documents\Visual Studio 2013\Projects\AllPointerest\DTO\bin\Debug\DTO.pdb
-C:\Users\vuric_000\Documents\Visual Studio 2013\Projects\AllPointerest\DTO\obj\Debug\DTO.dll
-C:\Users\vuric_000\Documents\Visual Studio 2013\Projects\AllPointerest\DTO\obj\Debug\DTO.pdb

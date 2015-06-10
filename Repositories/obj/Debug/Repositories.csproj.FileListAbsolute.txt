@@ -1,7 +1,0 @@
-C:\Users\vuric_000\Documents\Visual Studio 2013\Projects\AllPointerest\Repositories\obj\Debug\Repositories.csprojResolveAssemblyReference.cache
-C:\Users\vuric_000\Documents\Visual Studio 2013\Projects\AllPointerest\Repositories\bin\Debug\Repositories.dll
-C:\Users\vuric_000\Documents\Visual Studio 2013\Projects\AllPointerest\Repositories\bin\Debug\Repositories.pdb
-C:\Users\vuric_000\Documents\Visual Studio 2013\Projects\AllPointerest\Repositories\bin\Debug\DTO.dll
-C:\Users\vuric_000\Documents\Visual Studio 2013\Projects\AllPointerest\Repositories\bin\Debug\DTO.pdb
-C:\Users\vuric_000\Documents\Visual Studio 2013\Projects\AllPointerest\Repositories\obj\Debug\Repositories.dll
-C:\Users\vuric_000\Documents\Visual Studio 2013\Projects\AllPointerest\Repositories\obj\Debug\Repositories.pdb
