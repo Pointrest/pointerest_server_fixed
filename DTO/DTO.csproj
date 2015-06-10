@@ -39,13 +39,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Commands\CreateGestoreCommand.cs" />
+    <Compile Include="Categoria.cs" />
+	<Compile Include="Commands\CreateGestoreCommand.cs" />
     <Compile Include="Commands\CreatePuntoInteresseCommand.cs" />
     <Compile Include="Commands\UpdatePuntoInteresseCommand.cs" />
     <Compile Include="Gestore.cs" />
     <Compile Include="ImmaginePuntoInteresse.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PuntoInteresse.cs" />
+    <Compile Include="Sottocategoria.cs" />
     <Compile Include="User.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
