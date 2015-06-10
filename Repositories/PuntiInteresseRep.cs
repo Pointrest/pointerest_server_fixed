@@ -238,6 +238,51 @@ namespace Repositories
                             int rowAffected = tombCommand.ExecuteNonQuery();
                         }
 
+                        foreach(DTO.UpdatePuntoInteresseCommand.UpdatedImage image in updateCommand.Images) {
+
+                            //if image id == -1 is not present in db so add it
+                            if (image.ImageID == -1)
+                            {
+                                var addImageQuery = @"INSERT INTO [dbo].[Immagini]
+                                                    ([PuntointeresseID]
+                                                   ,[Image]
+                                                   ,[isTombStone])
+                                                     VALUES
+                                                   (@PuntoInteresseID
+                                                   ,@ImageData
+                                                   ,@IsTombStone";
+
+                                using (var insertNewImageCommand = new SqlCommand(addImageQuery, connection))
+                                {
+                                    insertNewImageCommand.Parameters.Add(new SqlParameter("@PuntoInteresseID", updateCommand.ID));
+                                    insertNewImageCommand.Parameters.Add(new SqlParameter("@ImageData", image.ImageData));
+                                    insertNewImageCommand.Parameters.Add(new SqlParameter("@IsTombStone", 0));
+                                    int rowAffected = (int)insertNewImageCommand.ExecuteNonQuery();
+                                }
+
+
+                            }
+                            //if image id > -1 is already present in db so set tombed to 0
+                            else if (image.ImageID > -1)
+                            {
+                                var unTombQuery = @"UPDATE [dbo].[Immagini]
+                                                SET [isTombStone] = 0
+                                                WHERE Immagini.ImmagineID = @ID";
+                                using (var unTombCommand = new SqlCommand(unTombQuery, connection))
+                                {
+                                    unTombCommand.Parameters.Add(new SqlParameter("@ID", image.ImageID));
+                                    int rowAffected = (int)unTombCommand.ExecuteNonQuery();
+                                }
+                            }
+                        }
+
+                       
+
+
+
+
+
+
                         // if image string == dbimagestring set this row in db to not tombed
 
                         /*foreach (string image in updateCommand.Images)

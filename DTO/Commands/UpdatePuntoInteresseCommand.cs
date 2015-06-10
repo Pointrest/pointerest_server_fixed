@@ -16,6 +16,7 @@ namespace DTO
         public double Latitudine { get; set; }
         public double Longitudine { get; set; }
         public string Tipo { get; set; }
+        public List<UpdatedImage> Images { get; set; }
 
         //public List<string> Images { get; set; }
 
