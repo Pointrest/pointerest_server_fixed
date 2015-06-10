@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using Data;
+using DTO.Commands;
 
 namespace Repositories
 {
@@ -19,7 +20,7 @@ namespace Repositories
         private string p;
 
         public GestoreRepository()
-            : this("mConnectionString")
+            : this("connectionString")
         {
 
         }
@@ -67,7 +68,7 @@ namespace Repositories
             return gestore;
         }
 
-        public HttpResponseMessage Post(Gestore gestore)
+        public HttpResponseMessage Post(CreateGestoreCommand gestore)
         {
             using (var connection = new SqlConnection(mConnectionString))
             {
@@ -85,7 +86,7 @@ namespace Repositories
                                ,@Cognome
                                ,@Username
                                ,@Password
-                               ,@isTombStone)";
+                               ,0)";
 
                 SqlTransaction transaction;
                 using (var command = new SqlCommand(query, connection,transaction = connection.BeginTransaction()))
@@ -94,7 +95,6 @@ namespace Repositories
                     command.Parameters.Add(new SqlParameter("@Cognome", gestore.cognome));
                     command.Parameters.Add(new SqlParameter("@Username", gestore.username));
                     command.Parameters.Add(new SqlParameter("@Password", gestore.password));
-                    command.Parameters.Add(new SqlParameter("@isTombStone", gestore.isTombStone));
 
                     int lastID = (int)command.ExecuteNonQuery();
 

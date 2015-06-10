@@ -6,10 +6,13 @@ using System.Web.Mvc;
 
 namespace PointerestPortal.Controllers
 {
-    public class HomeController : Controller
+    public class ManageController : Controller
     {
+        // GET: Manage
         public ActionResult Index()
         {
+            ViewBag.Title = "Home Page";
+
             return View();
         }
     }

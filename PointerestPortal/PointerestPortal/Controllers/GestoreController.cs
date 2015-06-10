@@ -1,4 +1,5 @@
 ﻿using DTO;
+using DTO.Commands;
 using Repositories;
 using System;
 using System.Collections.Generic;
@@ -35,7 +36,7 @@ namespace PointrestServerSide.Controllers
 
         // POST: api/Gestore
         [HttpPost]
-        public HttpResponseMessage Post(Gestore gestore)
+        public HttpResponseMessage Post(CreateGestoreCommand gestore)
         {
             if (gestore == null)
                 return new HttpResponseMessage(HttpStatusCode.BadRequest);

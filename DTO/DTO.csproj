@@ -40,6 +40,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Categoria.cs" />
+	<Compile Include="Commands\CreateGestoreCommand.cs" />
     <Compile Include="Commands\CreatePuntoInteresseCommand.cs" />
     <Compile Include="Commands\UpdatePuntoInteresseCommand.cs" />
     <Compile Include="Gestore.cs" />
