@@ -96,13 +96,13 @@ namespace Repositories
                     command.Parameters.Add(new SqlParameter("@Username", gestore.username));
                     command.Parameters.Add(new SqlParameter("@Password", gestore.password));
 
-                    int lastID = (int)command.ExecuteNonQuery();
+                    int createdGestoreID = (int)command.ExecuteScalar();
 
 
                     transaction.Commit();
                     connection.Close();
 
-                    return getHttpStatusCode(lastID);
+                    return getHttpStatusCode(createdGestoreID);
                 }
             }
         }

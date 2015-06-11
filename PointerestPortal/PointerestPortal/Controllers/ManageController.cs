@@ -8,11 +8,21 @@ namespace PointerestPortal.Controllers
 {
     public class ManageController : Controller
     {
-        // GET: Manage
+        [Authorize]
         public ActionResult Index()
         {
-            ViewBag.Title = "Home Page";
+            return View();
+        }
 
+        [Authorize]
+        public ActionResult Create()
+        {
+            return View();
+        }
+
+        [Authorize]
+        public ActionResult Update()
+        {
             return View();
         }
     }

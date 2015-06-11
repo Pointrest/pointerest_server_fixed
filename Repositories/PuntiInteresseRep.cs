@@ -14,7 +14,7 @@ namespace Repositories
     {
         string mConnectionString;
 
-        public PuntiInteresseRep() : this("mConnectionString") {}
+        public PuntiInteresseRep() : this("connectionString") { }
 
         public PuntiInteresseRep(string connectionString)
         {
@@ -23,6 +23,44 @@ namespace Repositories
                 throw new ApplicationException(string.Format("ConnectionString '{0}' not found", connectionString));
 
             else mConnectionString = cs.ConnectionString;
+        }
+
+        private static void AddPIToList(List<PuntoInteresse> puntiInteresse, SqlDataReader reader)
+        {
+            PuntoInteresse tmp = null;
+            var tmpID = -1;
+            var index = 0;
+
+            while (reader.Read())
+            {
+                var ID = 0;
+                if (tmpID != (ID = reader.GetValue<int>("PuntoInteresseID")))
+                {
+                    tmp = new PuntoInteresse();
+                    tmp.ID = ID;
+                    tmp.IDGestore = reader.GetValue<int>("GestoreID");
+                    tmp.Nome = reader.GetValue<string>("Nome");
+                    tmp.Descrizione = reader.GetValue<string>("descrizione");
+                    tmp.Categoria = reader.GetValue<string>("CategoryName");
+                    tmp.Sottocategoria = reader.GetValue<string>("SubCategoryName");
+                    tmp.Latitudine = reader.GetValue<double>("Latitudine");
+                    tmp.Longitudine = reader.GetValue<double>("Longitudine");
+
+                    ImmaginePuntoInteresse image = createImage(reader);
+                    tmp.Images = new List<ImmaginePuntoInteresse>();
+                    tmp.Images.Add(image);
+
+                    puntiInteresse.Add(tmp);
+                    index++;
+
+                    tmpID = ID;
+                }
+                else
+                {
+                    ImmaginePuntoInteresse image = createImage(reader);
+                    puntiInteresse[index - 1].Images.Add(image);
+                }
+            }
         }
 
         public IEnumerable<PuntoInteresse> GetAll()
@@ -34,50 +72,70 @@ namespace Repositories
                 connection.Open();
 
                 string query = @"SELECT * from PuntiInteresse 
-                                Left Outer Join Immagini 
-                                on PuntiInteresse.PuntoInteresseID = Immagini.PuntointeresseID
-                                Left Outer Join Categorie
-                                on PuntiInteresse.SottocategoriaID = Categorie.ID
-                                Left Outer Join Sottocategorie
-                                on PuntiInteresse.SottocategoriaID = Sottocategorie.ID";
+                                    Left Outer Join Immagini 
+                                    on PuntiInteresse.PuntoInteresseID = Immagini.PuntointeresseID
+									Left Outer Join Sottocategorie
+                                    on PuntiInteresse.SottocategoriaID = Sottocategorie.ID
+                                    Left Outer Join Categorie
+                                    on Sottocategorie.CategoriaID = Categorie.ID
+                                    WHERE PuntiInteresse.IsTombStoned = 0";
 
                 using (var command = new SqlCommand(query, connection))
                 {
                     using (SqlDataReader reader = command.ExecuteReader())
                     {
-                        PuntoInteresse tmp = null;
-                        var tmpID = -1;
-                        var index = 0;
+                        AddPIToList(puntiInteresse, reader);
+                    }
+                }
+            }
+            return puntiInteresse;
+        }
 
+
+        public IEnumerable<PuntoInteresse> Get(string username)
+        {
+            List<PuntoInteresse> puntiInteresse = new List<PuntoInteresse>();
+            int gestoreID = -1;
+
+
+            using (var connection = new SqlConnection(mConnectionString))
+            {
+                connection.Open();
+
+                string getGestoreID = @"SELECT [ID]
+                                        FROM [dbo].[Gestori]
+                                        WHERE Gestori.Username = '" + username + "'";
+
+                using (var command = new SqlCommand(getGestoreID, connection))
+                {
+                    using (SqlDataReader reader = command.ExecuteReader())
+                    {
                         while (reader.Read())
                         {
-                            var ID = 0;
-                            if (tmpID != (ID = reader.GetValue<int>("PuntoInteresseID")))
-                            {
-                                tmp = new PuntoInteresse();
-                                tmp.ID = ID;
-                                tmp.IDGestore = reader.GetValue<int>("GestoreID");
-                                tmp.Nome = reader.GetValue<string>("Nome");
-                                tmp.Categoria = reader.GetValue<string>("CategoryName");
-                                tmp.Sottocategoria = reader.GetValue<string>("SubCategoryName");
-                                tmp.Latitudine = reader.GetValue<double>("Latitudine");
-                                tmp.Longitudine = reader.GetValue<double>("Longitudine");
-
-                                ImmaginePuntoInteresse image = createImage(reader);
-                                tmp.Images.Add(image);
-
-                                puntiInteresse.Add(tmp);
-                                index++;
-
-                                tmpID = ID;
-                            }
-                            else
-                            {
-                                ImmaginePuntoInteresse image = createImage(reader);
-                                puntiInteresse[index - 1].Images.Add(image);
-                            }
+                            gestoreID = reader.GetValue<int>("ID");
                         }
                     }
+                }
+
+                var getPIGestore = @"SELECT * from PuntiInteresse 
+                                    Left Outer Join Immagini 
+                                    on PuntiInteresse.PuntoInteresseID = Immagini.PuntointeresseID
+									Left Outer Join Sottocategorie
+                                    on PuntiInteresse.SottocategoriaID = Sottocategorie.ID
+                                    Left Outer Join Categorie
+                                    on Sottocategorie.CategoriaID = Categorie.ID
+								    where PuntiInteresse.GestoreID =" + gestoreID +
+                                    " AND PuntiInteresse.IsTombStoned = 0";
+
+                using (var command = new SqlCommand(getPIGestore, connection))
+                {
+                    using (SqlDataReader reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            AddPIToList(puntiInteresse, reader);
+                        }
+                    } 
                 }
             }
             return puntiInteresse;
@@ -121,6 +179,7 @@ namespace Repositories
                                 tmp.Longitudine = reader.GetValue<double>("Longitudine");
 
                                 ImmaginePuntoInteresse image = createImage(reader);
+                                tmp.Images = new List<ImmaginePuntoInteresse>();
                                 tmp.Images.Add(image);
 
                                 tmpID = ID;
@@ -334,7 +393,7 @@ namespace Repositories
                 connection.Open();
 
                 string query = @"UPDATE [dbo].[PuntiInteresse]
-                            SET [IsTombStoned] = 0
+                            SET [IsTombStoned] = 1
                             WHERE PuntiInteresse.PuntoInteresseId = " + id;
 
                 using (var command = new SqlCommand(query, connection))

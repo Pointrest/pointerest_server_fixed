@@ -1,0 +1,9 @@
+﻿#imagesContainer div div {
+    text-align :center;
+}
+
+#imagesContainer div div img {
+    width:auto;
+    height:100px;
+    padding-top:10px;
+}

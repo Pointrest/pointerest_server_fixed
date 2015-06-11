@@ -1,5 +1,7 @@
 ﻿$(function() {
 
+    var gestore;
+
     $('#login-form-link').click(function (e) {
         $("#login-form").delay(100).fadeIn(100);
         $("#register-form").fadeOut(100);
@@ -22,11 +24,12 @@
 
         var password = $('#registerPassword').val();
         var confirmPassword = $('#confirmPassword').val();
+        var email = $('#email').val();
 
         if (password == confirmPassword) {
 
             var registerModel = {
-                "Email": $('#email').val(),
+                "Email": email,
                 "Password": password,
                 "ConfirmPassword": confirmPassword
             };
@@ -35,8 +38,8 @@
 
                 alert("registered gestore");
 
-                var gestore = {
-                    "Username": $('#registerUsername').val(),
+                gestore = {
+                    "Username": email,
                     "Password": password,
                     "Nome": $('#nome').val(),
                     "Cognome": $('#cognome').val()
@@ -69,7 +72,7 @@
             //self.user(data.userName);
             alert('Login ok');
             sessionStorage.setItem("tokenKey", data.access_token);
-            window.location.href = "/manage"
+            window.location.href = "/manage?username=" + loginData.username;
         }).fail(function () {
             alert('Login error');
         });
