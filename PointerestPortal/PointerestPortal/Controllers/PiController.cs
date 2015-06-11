@@ -30,6 +30,13 @@ namespace PointrestServerSide.Controllers
             return _repository.Get(id);
         }
 
+        [HttpGet]
+        [Route("api/pi/username/{username}")]
+        public List<PuntoInteresse> Get(string username)
+        {
+            return _repository.Get(username).ToList();
+        }
+
         // POST: api/Pi
         [HttpPost]
         public void Post(int gestoreID , PuntoInteresse pi)
@@ -45,8 +52,9 @@ namespace PointrestServerSide.Controllers
         //}
 
         //// DELETE: api/Pi/5
-        //public void Delete(int id)
-        //{
-        //}
+        public void Delete(int id)
+        {
+            _repository.Delete(id);
+        }
     }
 }

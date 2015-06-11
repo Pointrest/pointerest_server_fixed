@@ -3,6 +3,8 @@
     ViewBag.Title = "Index";
 }
 
+<link href="~/Content/homeIndex.css" rel="stylesheet" />
+
 <h2>Manage</h2>
 
 <table class="table table-hover">
@@ -13,27 +15,32 @@
             <th>Sottocategoria</th>
             <th>Descrizione</th>
             <th>Latitudine</th>
+            <th>Longitudine</th>
+            <th></th>
+            <th></th>
+            <th></th>
         </tr>
     </thead>
-    <tbody>
-        <tr>
-            <th scope="row">1</th>
-            <td>Mark</td>
-            <td>Otto</td>
-            <td>@mdo</td>
-        </tr>
-        <tr>
-            <th scope="row">2</th>
-            <td>Jacob</td>
-            <td>Thornton</td>
-            <td>@fat</td>
-        </tr>
-        <tr>
-            <th scope="row">3</th>
-            <td>Larry</td>
-            <td>the Bird</td>
-            <td>@twitter</td>
-        </tr>
+    <tbody id="puntiInteresseGestore">
     </tbody>
 </table>
 
+<div class="modal fade bs-example-modal-lg" id="imagesModal"  tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="gridSystemModalLabel">Images</h4>
+            </div>
+            <div class="modal-body">
+                <div class="container-fluid" id="imagesContainer">
+                    <!--Dynamically inserted images-->
+                </div>
+            </div>
+            <div class="modal-footer"></div>
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/jquery-1.10.2.min.js"></script>
+<script src="~/Scripts/indexManager.js"></script>
