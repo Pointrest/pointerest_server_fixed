@@ -1,5 +1,6 @@
 ﻿using Data;
 using DTO;
+using DTO.Commands;
 using Repositories;
 using System;
 using System.Collections.Generic;
@@ -20,19 +21,19 @@ namespace PointrestServerSide.Controllers
         }
 
         [HttpGet]
-        public List<PuntoInteresse> Get()
+        public List<PIQuery> Get()
         {
             return _repository.GetAll().ToList();
         }
         [HttpGet]
-        public PuntoInteresse Get(int id)
+        public PIQuery Get(int id)
         {
             return _repository.Get(id);
         }
 
         [HttpGet]
         [Route("api/pi/username/{username}")]
-        public List<PuntoInteresse> Get(string username)
+        public List<PIQuery> Get(string username)
         {
             return _repository.Get(username).ToList();
         }
@@ -46,10 +47,19 @@ namespace PointrestServerSide.Controllers
 
         }
 
-        //// PUT: api/Pi/5
-        //public void Put(int id, [FromBody]string value)
-        //{
-        //}
+        // PUT: api/Pi/5
+        [HttpPut]
+        public void Put([FromBody]UpdatePIDataCommand updatedData)
+        {
+            _repository.Put(updatedData);
+        }
+
+        [HttpPut]
+        [Route("api/pi/images/{id}")]
+        public void Put(int id, [FromBody]UpdatePIImagesCommand updatImagesCommand)
+        {
+            _repository.Put(updatImagesCommand);
+        }
 
         //// DELETE: api/Pi/5
         public void Delete(int id)

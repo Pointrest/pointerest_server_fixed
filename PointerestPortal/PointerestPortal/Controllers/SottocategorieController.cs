@@ -24,10 +24,10 @@ namespace PointerestPortal.Controllers
         }
 
         //// GET: api/Categorie/5
-        //public Sottocategoria Get(int id)
-        //{
-        //    return _repository.Get(id);
-        //}
+        public IEnumerable<Sottocategoria> Get(int id)
+        {
+            return _repository.Get(id);
+        }
 
         //// POST: api/Sottocategorie
         //public void Post([FromBody]string value)

@@ -15,7 +15,7 @@ namespace Repositories
         string mConnectionString;
 
         public SottocategorieRepository()
-            : this("mConnectionString")
+            : this("connectionString")
         {
 
         }
@@ -49,7 +49,7 @@ namespace Repositories
                         {
 
                             tmp = new Sottocategoria();
-                            tmp.ID = reader.GetValue<int>("ID");
+                            tmp.ID = reader.GetValue<int>("SottocategoriaID");
                             tmp.SubCategoryName = reader.GetValue<string>("SubCategoryName");
                             tmp.CategoriaID = reader.GetValue<int>("CategoriaID");
 
@@ -59,8 +59,41 @@ namespace Repositories
                 }
             }
             return sottocategorie;
+        }
+
+        public List<Sottocategoria> Get(int id)
+        {
+
+            List<Sottocategoria> sottoCategorie = new List<Sottocategoria>();
+            using (var connection = new SqlConnection(mConnectionString))
+            {
+                connection.Open();
+
+                string query = @"SELECT [SottocategoriaID]
+                                ,[SubCategoryName]
+                                FROM [dbo].[Sottocategorie]
+                                WHERE Sottocategorie.CategoriaID = " + id;
+
+                SqlTransaction transaction;
+                using (var command = new System.Data.SqlClient.SqlCommand(query, connection, transaction = connection.BeginTransaction()))
+                {
+                    using (SqlDataReader reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            Sottocategoria tmp = new Sottocategoria();
+                            tmp.ID = reader.GetValue<int>("SottocategoriaID");
+                            tmp.SubCategoryName = reader.GetValue<string>("SubCategoryName");
+
+                            sottoCategorie.Add(tmp);
+                        }
+                    }
+                }
+                transaction.Commit();
+                connection.Close();
+            }
+            return sottoCategorie;
 
         }
-    
     }
 }
