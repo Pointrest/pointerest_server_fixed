@@ -16,8 +16,74 @@ $(function () {
     gestoreUsername = getQueryVariable("username");
     tabella = $('#puntiInteresseGestore');
 
+    $('#addPIButton').on('click', function () {
+        $('#dataModal').modal();
+        addPI(gestoreUsername, $('.headField'));
+    });
+
     getGestorePIAndAppendThem();
 })
+
+function addPI(gestoreUserName, headField) {
+
+    $('#dataContainer').empty();
+
+    $.each(headField, function (index, element) {
+        if ($(element).text() == "Categoria") {
+            div = '<div class="form-group">'
+                    + '<label for="data">' + $(element).text() + '</label>'
+                    + '<select id="categorie" class="form-control"></select>'
+                    + '</div>';
+        }
+        else if ($(element).text() == "Sottocategoria") {
+            div = '<div class="form-group">'
+                    + '<label for="data">' + $(element).text() + '</label>'
+                    + '<select id="sottoCategorie" class="form-control">'
+                    + '</select>'
+                    + '</div>';
+        }
+        else {
+            div = '<div class="form-group">'
+                        + '<label for="data">' + $(element).text() + '</label>'
+                        + '<input type="text" class="form-control" id="' + $(element).text().toLowerCase() + '" placeholder="Enter '
+                        + $(element).text().toLowerCase() + '" '
+                        + 'value="" >'
+                        + '</div>';
+        }
+        $('#dataContainer').append(div);
+    });
+
+    $.each(categorie, function (index, element) {
+        var option = '<option value="' + element.ID + '">' + element.CategoryName + '</option>';
+        $('#categorie').append(option);
+    });
+
+    //$('#categorie').val();
+    getSubCategorieOfCategoryAndAppendThem($($("#categorie").children()[0]).val(), null);
+
+    $('#categorie').change(function () {
+
+        //clean old subcategorie
+        $('#sottoCategorie').empty();
+        //get subcategories of category
+        getSubCategorieOfCategoryAndAppendThem($("#categorie option:selected").val(), null);
+    });
+
+    $('#updatePIData').off('click').on('click', function () {
+
+        var addPIData = {
+            'Nome': $('#nome').val(),
+            'SottocategoriaID': $("#sottoCategorie option:selected").val(),
+            'Descrizione': $('#descrizione').val(),
+            'Latitudine': $('#latitudine').val(),
+            'Longitudine': $('#longitudine').val()
+        }
+
+        $.post('api/pi/' + gestoreUsername, addPIData, function (data, textStatus, jqXHR) { alert('ok'); });
+    });
+    $('#cancelPIDataUpdate').off('click').click(function () { $('#dataModal').modal('hide'); })
+    $('#updatePIData').text('Aggiungi Punto Interesse');
+}
 
 function getGestorePIAndAppendThem() {
 
@@ -68,8 +134,9 @@ function getGestorePIAndAppendThem() {
             editPI(piID, categoryID, subcategoryID, headCells, cells);
 
             $('#updatePIData').off('click').on('click', sendUpdatedData);
-
             $('#cancelPIDataUpdate').off('click').click(function () { $('#dataModal').modal('hide'); })
+
+            $('#updatePIData').text('Aggiorna Punto Interesse');
         });
 
         $('.deletePI').on('click', function () {
@@ -115,7 +182,7 @@ function showImages(imagesArray, currentIndex, piIndex) {
 
     $.each(tmpArray, function (eIndex, element) {
 
-        var imageRow = '<div class="row">'
+        var imageRow = '<div class="row imageRow">'
                     + '<div class="col-md-7 imgContainer">'
                     + '<img data-arrayindex="'
                     + eIndex
@@ -172,49 +239,49 @@ function editPI(piID, categoryID, subcategoryID, headCells, cells) {
     $('#dataContainer').empty();
     $('#dataContainer').attr('data-id', piID);
 
-    $.each(cells, function (index, element) {
+        $.each(cells, function (index, element) {
 
-        var div;
+            var div;
 
-        if (headCells[index].textContent == "Categoria") {
-            div = '<div class="form-group">'
-                    + '<label for="data">' + $(headCells[index]).text() + '</label>'
-                    + '<select id="categorie" class="form-control"></select>'
-                    + '</div>';
-        }
-        else if (headCells[index].textContent == "Sottocategoria") {
-            div = '<div class="form-group">'
-                    + '<label for="data">' + $(headCells[index]).text() + '</label>'
-                    + '<select id="sottoCategorie" class="form-control">'
-                    + '</select>'
-                    + '</div>';
-        }
-        else {
-            div = '<div class="form-group">'
+            if (headCells[index].textContent == "Categoria") {
+                div = '<div class="form-group">'
                         + '<label for="data">' + $(headCells[index]).text() + '</label>'
-                        + '<input type="text" class="form-control" id="' + $(headCells[index]).text().toLowerCase() + '" placeholder="Enter email" '
-                        + 'value="' + $(cells[index]).text() + '" >'
+                        + '<select id="categorie" class="form-control"></select>'
                         + '</div>';
-        }
-        $('#dataContainer').append(div);
-    });
+            }
+            else if (headCells[index].textContent == "Sottocategoria") {
+                div = '<div class="form-group">'
+                        + '<label for="data">' + $(headCells[index]).text() + '</label>'
+                        + '<select id="sottoCategorie" class="form-control">'
+                        + '</select>'
+                        + '</div>';
+            }
+            else {
+                div = '<div class="form-group">'
+                            + '<label for="data">' + $(headCells[index]).text() + '</label>'
+                            + '<input type="text" class="form-control" id="' + $(headCells[index]).text().toLowerCase() + '" placeholder="Enter email" '
+                            + 'value="' + $(cells[index]).text() + '" >'
+                            + '</div>';
+            }
+            $('#dataContainer').append(div);
 
-    $.each(categorie, function (index, element) {
-        var option = '<option value="' + element.ID + '">' + element.CategoryName + '</option>';
-        $('#categorie').append(option);
-    });
+        });
 
-    $('#categorie').val(categoryID);
-    getSubCategorieOfCategoryAndAppendThem(categoryID, subcategoryID);
+        $.each(categorie, function (index, element) {
+            var option = '<option value="' + element.ID + '">' + element.CategoryName + '</option>';
+            $('#categorie').append(option);
+        });
 
-    $('#categorie').change(function () {
+        $('#categorie').val(categoryID);
+        getSubCategorieOfCategoryAndAppendThem(categoryID, subcategoryID);
 
-        //clean old subcategorie
-        $('#sottoCategorie').empty();
-        //get subcategories of category
-        getSubCategorieOfCategoryAndAppendThem($("#categorie option:selected").val(), null);
-    });
+        $('#categorie').change(function () {
 
+            //clean old subcategorie
+            $('#sottoCategorie').empty();
+            //get subcategories of category
+            getSubCategorieOfCategoryAndAppendThem($("#categorie option:selected").val(), null);
+        });
 }
 
 function getSubCategorieOfCategoryAndAppendThem(categoryID, subcategoryID) {

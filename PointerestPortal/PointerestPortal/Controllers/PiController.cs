@@ -38,13 +38,19 @@ namespace PointrestServerSide.Controllers
             return _repository.Get(username).ToList();
         }
 
+        [HttpGet]
+        [Route("api/pi/filter/{latitudine}/{longitudine}/{raggio}")]
+        public List<PIQuery> Get(double latitudine, double longitudine, int raggio)
+        {
+            return _repository.GetPIInRadius(latitudine, longitudine, raggio).ToList();
+        }
+
         // POST: api/Pi
         [HttpPost]
-        public void Post(int gestoreID , PuntoInteresse pi)
+        [Route("api/pi/{gestoreusername}")]
+        public void Post(string gestoreusername, CreatePuntoInteresseCommand createCommand)
         {
-            //return : “201” if succesfull, “403” denied, “500” internal server error
-            //info: registra un nuovo punto di interesse per il gestore con id == {gestoreID}
-
+            _repository.Post(gestoreusername, createCommand);
         }
 
         // PUT: api/Pi/5
@@ -62,6 +68,8 @@ namespace PointrestServerSide.Controllers
         }
 
         //// DELETE: api/Pi/5
+        [HttpDelete]
+        [Route("api/pi/{id}")]
         public void Delete(int id)
         {
             _repository.Delete(id);
