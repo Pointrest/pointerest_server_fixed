@@ -26,7 +26,7 @@ namespace Repositories
             else mConnectionString = cs.ConnectionString;
         }
 
-        private static void AddPIToList(List<PIQuery> puntiInteresse, SqlDataReader reader)
+        private void AddPIToList(List<PIQuery> puntiInteresse, SqlDataReader reader)
         {
             PIQuery tmp = null;
             var tmpID = -1;
@@ -49,7 +49,7 @@ namespace Repositories
                     tmp.Latitudine = reader.GetValue<double>("Latitudine");
                     tmp.Longitudine = reader.GetValue<double>("Longitudine");
 
-                    ImmaginePIQuery image = createImage(reader);
+                    ImmaginePIQuery image = CreateImage(reader);
                     tmp.Images = new List<ImmaginePIQuery>();
                     tmp.Images.Add(image);
 
@@ -60,13 +60,18 @@ namespace Repositories
                 }
                 else
                 {
-                    ImmaginePIQuery image = createImage(reader);
+                    ImmaginePIQuery image = CreateImage(reader);
                     puntiInteresse[index - 1].Images.Add(image);
                 }
             }
         }
 
         public IEnumerable<PIQuery> GetAll()
+        {
+            return GetAllPI();
+        }
+
+        private IEnumerable<PIQuery> GetAllPI()
         {
             List<PIQuery> puntiInteresse = new List<PIQuery>();
 
@@ -81,7 +86,8 @@ namespace Repositories
                                     on PuntiInteresse.SottocategoriaID = Sottocategorie.SottocategoriaID
                                     Left Outer Join Categorie
                                     on Sottocategorie.CategoriaID = Categorie.CategoriaID
-                                    WHERE PuntiInteresse.IsTombStoned = 0";
+                                    WHERE PuntiInteresse.IsTombStoned = 0
+                                    AND (Immagini.isTombStone = 0 OR Immagini.isTombStone is NULL)";
 
                 using (var command = new SqlCommand(query, connection))
                 {
@@ -128,7 +134,7 @@ namespace Repositories
                                     on Sottocategorie.CategoriaID = Categorie.CategoriaID
 								    where PuntiInteresse.GestoreID =" + gestoreID +
                                     @" AND PuntiInteresse.IsTombStoned = 0 
-                                    AND Immagini.isTombStone = 0";
+                                    AND (Immagini.isTombStone = 0 OR Immagini.isTombStone is NULL)";
 
                 using (var command = new SqlCommand(getPIGestore, connection))
                 {
@@ -157,7 +163,7 @@ namespace Repositories
                                 Left Outer Join Categorie
                                 on PuntiInteresse.SottocategoriaID = Categorie.CategoriaID
                                 Left Outer Join Sottocategorie
-                                on PuntiInteresse.SottocategoriaID = Sottocategorie.SottocategorieID
+                                on PuntiInteresse.SottocategoriaID = Sottocategorie.SottocategoriaID
                                 where PuntiInteresse.PuntoInteresseID = " + id;
 
                 using (var command = new SqlCommand(query, connection))
@@ -181,7 +187,7 @@ namespace Repositories
                                 tmp.Latitudine = reader.GetValue<double>("Latitudine");
                                 tmp.Longitudine = reader.GetValue<double>("Longitudine");
 
-                                ImmaginePIQuery image = createImage(reader);
+                                ImmaginePIQuery image = CreateImage(reader);
                                 tmp.Images = new List<ImmaginePIQuery>();
                                 tmp.Images.Add(image);
 
@@ -189,7 +195,7 @@ namespace Repositories
                             }
                             else
                             {
-                                ImmaginePIQuery image = createImage(reader);
+                                ImmaginePIQuery image = CreateImage(reader);
                                 tmp.Images.Add(image);
                             }
                         }
@@ -199,58 +205,79 @@ namespace Repositories
             return tmp;
         }
 
-        public void Post(int GestoreID, CreatePuntoInteresseCommand createCommand)
+        public void Post(string gestoreName, CreatePuntoInteresseCommand createCommand)
         {
+            int gestoreID = -1;
+
             using (var connection = new SqlConnection(mConnectionString))
             {
                 connection.Open();
 
+                string getGestoreID = @"SELECT [ID]
+                                        FROM [dbo].[Gestori]
+                                        WHERE Gestori.Username = '" + gestoreName + "'";
+
+                using (var command = new SqlCommand(getGestoreID, connection))
+                {
+                    using (SqlDataReader reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            gestoreID = reader.GetValue<int>("ID");
+                        }
+                    }
+                }
+
                 string insertPuntoInteresse = @"INSERT INTO [dbo].[PuntiInteresse]
                                 ([GestoreID]
                                 ,[Nome]
-                                ,[Categoria]
                                ,[Descrizione]
                                ,[Latitudine]
                                ,[Longitudine]
-                               ,[SottocategoriaID])
-                                OUTPUT INSERTED.ID
+                               ,[SottocategoriaID]
+                                ,[IsTombStoned])
+                                OUTPUT INSERTED.PuntoInteresseID
                                 VALUES
                                (@GestoreID
                                ,@Nome
                                ,@Descrizione
                                ,@Latitudine
                                ,@Longitudine
-                               ,@SottocategoriaID)";
+                               ,@SottocategoriaID
+                               ,0)";
 
                 using (var puntoInteresseCommand = new SqlCommand(insertPuntoInteresse, connection))
                 {
-                    puntoInteresseCommand.Parameters.Add(new SqlParameter("@GestoreID", createCommand.IDGestore));
+                    puntoInteresseCommand.Parameters.Add(new SqlParameter("@GestoreID", gestoreID));
                     puntoInteresseCommand.Parameters.Add(new SqlParameter("@Nome", createCommand.Nome));
                     puntoInteresseCommand.Parameters.Add(new SqlParameter("@Descrizione", createCommand.Descrizione));
                     puntoInteresseCommand.Parameters.Add(new SqlParameter("@Latitudine", createCommand.Latitudine));
                     puntoInteresseCommand.Parameters.Add(new SqlParameter("@Longitudine", createCommand.Longitudine));
-                    puntoInteresseCommand.Parameters.Add(new SqlParameter("@SottocategoriaID", createCommand.Sottocategoria));
+                    puntoInteresseCommand.Parameters.Add(new SqlParameter("@SottocategoriaID", createCommand.SottocategoriaID));
 
                     int lastID = (int)puntoInteresseCommand.ExecuteScalar();
 
-                    string insertImmaginePuntoInteresse = @"INSERT INTO [dbo].[Immagini]
+                    if (createCommand.Images != null)
+                    {
+                        string insertImmaginePuntoInteresse = @"INSERT INTO [dbo].[Immagini]
                                                          ([PuntointeresseID]
                                                          ,[Image])
                                                          VALUES
                                                          @IDPUntoInteresse
                                                         ,@Immagine)";
 
-                    List<string> immagini = null;
-                    var index = 0;
-                    foreach (string image in (immagini = createCommand.Images))
-                    {
-
-                        using (var imageCommand = new SqlCommand(insertImmaginePuntoInteresse, connection))
+                        List<string> immagini = null;
+                        var index = 0;
+                        foreach (string image in (immagini = createCommand.Images))
                         {
-                            imageCommand.Parameters.Add(new SqlParameter("@IDPUntoInteresse", lastID));
-                            imageCommand.Parameters.Add(new SqlParameter("Immagine", immagini[index]));
+
+                            using (var imageCommand = new SqlCommand(insertImmaginePuntoInteresse, connection))
+                            {
+                                imageCommand.Parameters.Add(new SqlParameter("@IDPUntoInteresse", lastID));
+                                imageCommand.Parameters.Add(new SqlParameter("Immagine", immagini[index]));
+                            }
+                            ++index;
                         }
-                        ++index;
                     }
 
                     connection.Close();
@@ -274,16 +301,16 @@ namespace Repositories
 
                 using (var command = new SqlCommand(updatePuntoInteresse, connection))
                 {
-                        command.Parameters.Add(new SqlParameter("@IDPuntoInteresse", updateCommand.ID));
-                        command.Parameters.Add(new SqlParameter("@Nome", updateCommand.Nome));
-                        command.Parameters.Add(new SqlParameter("@Descrizione", updateCommand.Descrizione));
-                        command.Parameters.Add(new SqlParameter("@Latitudine", updateCommand.Latitudine));
-                        command.Parameters.Add(new SqlParameter("@Longitudine", updateCommand.Longitudine));
-                        command.Parameters.Add(new SqlParameter("@SottocategoriaID", updateCommand.SottocategoriaID));
+                    command.Parameters.Add(new SqlParameter("@IDPuntoInteresse", updateCommand.ID));
+                    command.Parameters.Add(new SqlParameter("@Nome", updateCommand.Nome));
+                    command.Parameters.Add(new SqlParameter("@Descrizione", updateCommand.Descrizione));
+                    command.Parameters.Add(new SqlParameter("@Latitudine", updateCommand.Latitudine));
+                    command.Parameters.Add(new SqlParameter("@Longitudine", updateCommand.Longitudine));
+                    command.Parameters.Add(new SqlParameter("@SottocategoriaID", updateCommand.SottocategoriaID));
 
-                        // Update Punto Interesse
-                        var x = command.ExecuteNonQuery();
-                    
+                    // Update Punto Interesse
+                    var x = command.ExecuteNonQuery();
+
                 }
                 connection.Close();
             }
@@ -343,7 +370,7 @@ namespace Repositories
                         }
                     }
                 }
-                
+
                 connection.Close();
 
             }
@@ -367,11 +394,32 @@ namespace Repositories
             }
         }
 
-        private static ImmaginePIQuery createImage(SqlDataReader reader)
+        private ImmaginePIQuery CreateImage(SqlDataReader reader)
         {
             ImmaginePIQuery image = new ImmaginePIQuery(reader.GetValue<int>("ImmagineID")
                                                                         , reader.GetValue<string>("Image"));
             return image;
+        }
+
+        public IEnumerable<PIQuery> GetPIInRadius(double latitudine, double longitudine, int raggio)
+        {
+            List<PIQuery> allPI = GetAllPI().ToList();
+            List<PIQuery> userWantedPI = new List<PIQuery>();
+
+            foreach (var puntoInteresse in allPI)
+            {
+
+                double distance = (Math.Sqrt(
+                                (Math.Pow(puntoInteresse.Latitudine - latitudine, 2))
+                                + (Math.Pow(puntoInteresse.Longitudine - longitudine, 2))
+                               ));
+
+                if (distance <= raggio)
+                {
+                    userWantedPI.Add(puntoInteresse);
+                }
+            }
+            return userWantedPI;
         }
     }
 }

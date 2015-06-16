@@ -6,13 +6,10 @@ using System.Threading.Tasks;
 
 namespace DTO
 {
-    public class CreatePuntoInteresseCommand
+    public class UserInfo
     {
-        public string Nome { get; set; }
-        public int SottocategoriaID { get; set; }
-        public string Descrizione { get; set; }
         public double Latitudine { get; set; }
         public double Longitudine { get; set; }
-        public List<string> Images { get; set; }
+        public int  Raggio { get; set; }
     }
 }
