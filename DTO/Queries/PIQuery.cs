@@ -7,10 +7,9 @@ using System.Web;
 
 namespace DTO
 {
-    public class PuntoInteresse
+    public class PIQuery
     {
         public int ID { get; set; }
-        public int IDGestore { get; set; }
         public string Nome { get; set; }
         public int CategoriaID { get; set; }
         public string Categoria { get; set; }
@@ -19,8 +18,8 @@ namespace DTO
         public string Descrizione { get; set; }
         public double Latitudine { get; set; }
         public double Longitudine { get; set; }
-        public List<ImmaginePuntoInteresse> Images { get; set; }
+        public List<ImmaginePIQuery> Images { get; set; }
 
-        public PuntoInteresse() { }
+        public PIQuery() { }
     }
 }

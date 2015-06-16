@@ -1,5 +1,6 @@
 ﻿using Data;
 using DTO;
+using DTO.Commands;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -10,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Repositories
 {
-    public class PuntiInteresseRep : IRepository<PuntoInteresse>
+    public class PuntiInteresseRep// : IRepository<PuntoInteresse>
     {
         string mConnectionString;
 
@@ -25,9 +26,9 @@ namespace Repositories
             else mConnectionString = cs.ConnectionString;
         }
 
-        private static void AddPIToList(List<PuntoInteresse> puntiInteresse, SqlDataReader reader)
+        private static void AddPIToList(List<PIQuery> puntiInteresse, SqlDataReader reader)
         {
-            PuntoInteresse tmp = null;
+            PIQuery tmp = null;
             var tmpID = -1;
             var index = 0;
 
@@ -36,18 +37,20 @@ namespace Repositories
                 var ID = 0;
                 if (tmpID != (ID = reader.GetValue<int>("PuntoInteresseID")))
                 {
-                    tmp = new PuntoInteresse();
+                    tmp = new PIQuery();
                     tmp.ID = ID;
-                    tmp.IDGestore = reader.GetValue<int>("GestoreID");
+                    //tmp.IDGestore = reader.GetValue<int>("GestoreID");
                     tmp.Nome = reader.GetValue<string>("Nome");
                     tmp.Descrizione = reader.GetValue<string>("descrizione");
+                    tmp.CategoriaID = reader.GetValue<int>("CategoriaID");
                     tmp.Categoria = reader.GetValue<string>("CategoryName");
+                    tmp.SottocategoriaID = reader.GetValue<int>("SottocategoriaID");
                     tmp.Sottocategoria = reader.GetValue<string>("SubCategoryName");
                     tmp.Latitudine = reader.GetValue<double>("Latitudine");
                     tmp.Longitudine = reader.GetValue<double>("Longitudine");
 
-                    ImmaginePuntoInteresse image = createImage(reader);
-                    tmp.Images = new List<ImmaginePuntoInteresse>();
+                    ImmaginePIQuery image = createImage(reader);
+                    tmp.Images = new List<ImmaginePIQuery>();
                     tmp.Images.Add(image);
 
                     puntiInteresse.Add(tmp);
@@ -57,15 +60,15 @@ namespace Repositories
                 }
                 else
                 {
-                    ImmaginePuntoInteresse image = createImage(reader);
+                    ImmaginePIQuery image = createImage(reader);
                     puntiInteresse[index - 1].Images.Add(image);
                 }
             }
         }
 
-        public IEnumerable<PuntoInteresse> GetAll()
+        public IEnumerable<PIQuery> GetAll()
         {
-            List<PuntoInteresse> puntiInteresse = new List<PuntoInteresse>();
+            List<PIQuery> puntiInteresse = new List<PIQuery>();
 
             using (var connection = new SqlConnection(mConnectionString))
             {
@@ -75,9 +78,9 @@ namespace Repositories
                                     Left Outer Join Immagini 
                                     on PuntiInteresse.PuntoInteresseID = Immagini.PuntointeresseID
 									Left Outer Join Sottocategorie
-                                    on PuntiInteresse.SottocategoriaID = Sottocategorie.ID
+                                    on PuntiInteresse.SottocategoriaID = Sottocategorie.SottocategoriaID
                                     Left Outer Join Categorie
-                                    on Sottocategorie.CategoriaID = Categorie.ID
+                                    on Sottocategorie.CategoriaID = Categorie.CategoriaID
                                     WHERE PuntiInteresse.IsTombStoned = 0";
 
                 using (var command = new SqlCommand(query, connection))
@@ -91,10 +94,9 @@ namespace Repositories
             return puntiInteresse;
         }
 
-
-        public IEnumerable<PuntoInteresse> Get(string username)
+        public IEnumerable<PIQuery> Get(string username)
         {
-            List<PuntoInteresse> puntiInteresse = new List<PuntoInteresse>();
+            List<PIQuery> puntiInteresse = new List<PIQuery>();
             int gestoreID = -1;
 
 
@@ -121,11 +123,12 @@ namespace Repositories
                                     Left Outer Join Immagini 
                                     on PuntiInteresse.PuntoInteresseID = Immagini.PuntointeresseID
 									Left Outer Join Sottocategorie
-                                    on PuntiInteresse.SottocategoriaID = Sottocategorie.ID
+                                    on PuntiInteresse.SottocategoriaID = Sottocategorie.SottocategoriaID
                                     Left Outer Join Categorie
-                                    on Sottocategorie.CategoriaID = Categorie.ID
+                                    on Sottocategorie.CategoriaID = Categorie.CategoriaID
 								    where PuntiInteresse.GestoreID =" + gestoreID +
-                                    " AND PuntiInteresse.IsTombStoned = 0";
+                                    @" AND PuntiInteresse.IsTombStoned = 0 
+                                    AND Immagini.isTombStone = 0";
 
                 using (var command = new SqlCommand(getPIGestore, connection))
                 {
@@ -135,15 +138,15 @@ namespace Repositories
                         {
                             AddPIToList(puntiInteresse, reader);
                         }
-                    } 
+                    }
                 }
             }
             return puntiInteresse;
         }
 
-        public PuntoInteresse Get(int id)
+        public PIQuery Get(int id)
         {
-            PuntoInteresse tmp = null;
+            PIQuery tmp = null;
             using (var connection = new SqlConnection(mConnectionString))
             {
                 connection.Open();
@@ -152,9 +155,9 @@ namespace Repositories
                                 Left Outer Join Immagini 
                                 on PuntiInteresse.PuntoInteresseID = Immagini.PuntointeresseID
                                 Left Outer Join Categorie
-                                on PuntiInteresse.SottocategoriaID = Categorie.ID
+                                on PuntiInteresse.SottocategoriaID = Categorie.CategoriaID
                                 Left Outer Join Sottocategorie
-                                on PuntiInteresse.SottocategoriaID = Sottocategorie.ID
+                                on PuntiInteresse.SottocategoriaID = Sottocategorie.SottocategorieID
                                 where PuntiInteresse.PuntoInteresseID = " + id;
 
                 using (var command = new SqlCommand(query, connection))
@@ -169,24 +172,24 @@ namespace Repositories
                             var ID = 0;
                             if (tmpID != (ID = reader.GetValue<int>("PuntoInteresseID")))
                             {
-                                tmp = new PuntoInteresse();
+                                tmp = new PIQuery();
                                 tmp.ID = ID;
-                                tmp.IDGestore = reader.GetValue<int>("GestoreID");
+                                //tmp.IDGestore = reader.GetValue<int>("GestoreID");
                                 tmp.Nome = reader.GetValue<string>("Nome");
                                 tmp.Categoria = reader.GetValue<string>("CategoryName");
-                                tmp.Sottocategoria = reader.GetValue<string>("SubCategoryName");
+                                tmp.SottocategoriaID = reader.GetValue<int>("SottocategoriaID");
                                 tmp.Latitudine = reader.GetValue<double>("Latitudine");
                                 tmp.Longitudine = reader.GetValue<double>("Longitudine");
 
-                                ImmaginePuntoInteresse image = createImage(reader);
-                                tmp.Images = new List<ImmaginePuntoInteresse>();
+                                ImmaginePIQuery image = createImage(reader);
+                                tmp.Images = new List<ImmaginePIQuery>();
                                 tmp.Images.Add(image);
 
                                 tmpID = ID;
                             }
                             else
                             {
-                                ImmaginePuntoInteresse image = createImage(reader);
+                                ImmaginePIQuery image = createImage(reader);
                                 tmp.Images.Add(image);
                             }
                         }
@@ -255,134 +258,94 @@ namespace Repositories
             }
         }
 
-        public void Put(UpdatePuntoInteresseCommand updateCommand)
+        public void Put(UpdatePIDataCommand updateCommand)
         {
             using (var connection = new SqlConnection(mConnectionString))
             {
                 connection.Open();
 
                 string updatePuntoInteresse = @"UPDATE [dbo].[PuntiInteresse]
-                                                SET [GestoreID] = @GestoreID
-                                                ,[Nome] = @Nome
+                                                SET [Nome] = @Nome
                                                 ,[Descrizione] = @Descrizione
                                                 ,[Latitudine] = @Latitudine
                                                 ,[Longitudine] = @Longitudine
-                                                ,[SottocategoriaID] = @Sottocategoria
-                                                WHERE PuntiInteresse.ID = @IDPuntoInteresse";
+                                                ,[SottocategoriaID] = @SottocategoriaID
+                                                WHERE PuntiInteresse.PuntoInteresseID = @IDPuntoInteresse";
 
-                SqlTransaction tr;
-                using (var command = new SqlCommand(updatePuntoInteresse, connection, tr = connection.BeginTransaction()))
+                using (var command = new SqlCommand(updatePuntoInteresse, connection))
                 {
-
-                    using (SqlDataReader reader = command.ExecuteReader())
-                    {
                         command.Parameters.Add(new SqlParameter("@IDPuntoInteresse", updateCommand.ID));
-                        command.Parameters.Add(new SqlParameter("@GestoreID", updateCommand.IDGestore));
                         command.Parameters.Add(new SqlParameter("@Nome", updateCommand.Nome));
                         command.Parameters.Add(new SqlParameter("@Descrizione", updateCommand.Descrizione));
                         command.Parameters.Add(new SqlParameter("@Latitudine", updateCommand.Latitudine));
                         command.Parameters.Add(new SqlParameter("@Longitudine", updateCommand.Longitudine));
-                        command.Parameters.Add(new SqlParameter("@SottocategoriaID", updateCommand.Sottocategoria));
+                        command.Parameters.Add(new SqlParameter("@SottocategoriaID", updateCommand.SottocategoriaID));
 
                         // Update Punto Interesse
-                        command.ExecuteNonQuery();
+                        var x = command.ExecuteNonQuery();
+                    
+                }
+                connection.Close();
+            }
+        }
 
-                        // set every image of the puntoInteresse to tombed
-                        string setEveryThingToTombed = @"UPDATE [dbo].[Immagini]
+        public void Put(UpdatePIImagesCommand updateCommand)
+        {
+            using (var connection = new SqlConnection(mConnectionString))
+            {
+                connection.Open();
+
+                // set every image of the puntoInteresse to tombed
+                string setEveryThingToTombed = @"UPDATE [dbo].[Immagini]
                                                          SET [isTombStone] = 1
-                                                         WHERE Immagini.PuntointeresseID = " + updateCommand.ID;
+                                                         WHERE Immagini.PuntointeresseID = " + updateCommand.IDPuntoInteresse;
 
-                        using (var tombCommand = new SqlCommand(setEveryThingToTombed, connection))
-                        {
-                            int rowAffected = tombCommand.ExecuteNonQuery();
-                        }
+                using (var tombCommand = new SqlCommand(setEveryThingToTombed, connection))
+                {
+                    int rowAffected = tombCommand.ExecuteNonQuery();
+                }
 
-                        foreach(DTO.UpdatePuntoInteresseCommand.UpdatedImage image in updateCommand.Images) {
+                foreach (var image in updateCommand.Images)
+                {
 
-                            //if image id == -1 is not present in db so add it
-                            if (image.ImageID == -1)
-                            {
-                                var addImageQuery = @"INSERT INTO [dbo].[Immagini]
+                    //if image id == -1, image is not present in db so add it
+                    if (image.ImageID == -1)
+                    {
+                        var addImageQuery = @"INSERT INTO [dbo].[Immagini]
                                                     ([PuntointeresseID]
                                                    ,[Image]
                                                    ,[isTombStone])
                                                      VALUES
                                                    (@PuntoInteresseID
                                                    ,@ImageData
-                                                   ,@IsTombStone";
+                                                   ,0)";
 
-                                using (var insertNewImageCommand = new SqlCommand(addImageQuery, connection))
-                                {
-                                    insertNewImageCommand.Parameters.Add(new SqlParameter("@PuntoInteresseID", updateCommand.ID));
-                                    insertNewImageCommand.Parameters.Add(new SqlParameter("@ImageData", image.ImageData));
-                                    insertNewImageCommand.Parameters.Add(new SqlParameter("@IsTombStone", 0));
-                                    int rowAffected = (int)insertNewImageCommand.ExecuteNonQuery();
-                                }
-
-
-                            }
-                            //if image id > -1 is already present in db so set tombed to 0
-                            else if (image.ImageID > -1)
-                            {
-                                var unTombQuery = @"UPDATE [dbo].[Immagini]
-                                                SET [isTombStone] = 0
-                                                WHERE Immagini.ImmagineID = @ID";
-                                using (var unTombCommand = new SqlCommand(unTombQuery, connection))
-                                {
-                                    unTombCommand.Parameters.Add(new SqlParameter("@ID", image.ImageID));
-                                    int rowAffected = (int)unTombCommand.ExecuteNonQuery();
-                                }
-                            }
+                        using (var insertNewImageCommand = new SqlCommand(addImageQuery, connection))
+                        {
+                            insertNewImageCommand.Parameters.Add(new SqlParameter("@PuntoInteresseID", updateCommand.IDPuntoInteresse));
+                            insertNewImageCommand.Parameters.Add(new SqlParameter("@ImageData", image.ImageData));
+                            //insertNewImageCommand.Parameters.Add(new SqlParameter("@IsTombStone", 0));
+                            int rowAffected = (int)insertNewImageCommand.ExecuteNonQuery();
                         }
 
-                       
 
-
-
-
-
-
-                        // if image string == dbimagestring set this row in db to not tombed
-
-                        /*foreach (string image in updateCommand.Images)
+                    }
+                    //if image id > -1 is already present in db so set tombed to 0
+                    else if (image.ImageID > -1)
+                    {
+                        var unTombQuery = @"UPDATE [dbo].[Immagini]
+                                                SET [isTombStone] = 0
+                                                WHERE Immagini.ImmagineID = @ID";
+                        using (var unTombCommand = new SqlCommand(unTombQuery, connection))
                         {
-                            string updateImmaginePuntoInteresse = @"UPDATE [dbo].[Immagini]
-                                                                 SET [isTombStone] = 0
-                                                                 WHERE Immagini.Image = " + image;
-
-                            using (var check = new SqlCommand(updateImmaginePuntoInteresse, connection))
-                            {
-                                int affected = check.ExecuteNonQuery();
-
-                                // if image is not present in db add it
-                                if (affected < 1)
-                                {
-                                    string insertNewImmaginePuntoInteresse = @"INSERT INTO [dbo].[Immagini]
-                                                                           ([PuntointeresseID]
-                                                                           ,[Image]
-                                                                           ,[isTombStone])
-                                                                            VALUES
-                                                                           (@PuntoInteresseID
-                                                                           ,@Image
-                                                                           ,@IsTombStoned)";
-
-                                    using (var insertNewImage = new SqlCommand(insertNewImmaginePuntoInteresse, connection))
-                                    {
-                                        insertNewImage.Parameters.Add(new SqlParameter("@IDPuntoInteresse", updateCommand.ID));
-                                        insertNewImage.Parameters.Add(new SqlParameter("@Image", image));
-                                        insertNewImage.Parameters.Add(new SqlParameter("@IsTombStoned", false));
-
-                                        // Update Punto Interesse
-                                        insertNewImage.ExecuteNonQuery();
-                                    }
-                                }
-                            }
-                        }*/
-
-                        tr.Commit();
-                        connection.Close();
+                            unTombCommand.Parameters.Add(new SqlParameter("@ID", image.ImageID));
+                            int rowAffected = (int)unTombCommand.ExecuteNonQuery();
+                        }
                     }
                 }
+                
+                connection.Close();
+
             }
         }
 
@@ -404,11 +367,10 @@ namespace Repositories
             }
         }
 
-        private static ImmaginePuntoInteresse createImage(SqlDataReader reader)
+        private static ImmaginePIQuery createImage(SqlDataReader reader)
         {
-            ImmaginePuntoInteresse image = new ImmaginePuntoInteresse(reader.GetValue<int>("ImmagineID")
-                                                                        , reader.GetValue<string>("Image")
-                                                                        , false);
+            ImmaginePIQuery image = new ImmaginePIQuery(reader.GetValue<int>("ImmagineID")
+                                                                        , reader.GetValue<string>("Image"));
             return image;
         }
     }

@@ -15,7 +15,7 @@ namespace Repositories
         string mConnectionString;
 
         public CategorieRepository()
-            : this("mConnectionString")
+            : this("connectionString")
         {
 
         }
@@ -38,7 +38,7 @@ namespace Repositories
                 connection.Open();
 
                 string query = @"SELECT * from Categorie "
-                                + " WHERE Categorie.ID = " + id;
+                                + " WHERE Categorie.CategoriaID = " + id;
 
                 SqlTransaction transaction;
                 using (var command = new System.Data.SqlClient.SqlCommand(query, connection, transaction = connection.BeginTransaction()))
@@ -49,7 +49,7 @@ namespace Repositories
                         {
                             categoria = new Categoria();
 
-                            categoria.ID = reader.GetValue<int>("ID");
+                            categoria.ID = reader.GetValue<int>("CategoriaID");
                             categoria.CategoryName = reader.GetValue<string>("CategoryName");
                   
                         }
@@ -82,7 +82,7 @@ namespace Repositories
                          while (reader.Read()){
 
                                  tmp = new Categoria();
-                                 tmp.ID = reader.GetValue<int>("ID");
+                                 tmp.ID = reader.GetValue<int>("CategoriaID");
                                  tmp.CategoryName = reader.GetValue<string>("CategoryName");
                                  
                                  categorie.Add(tmp);

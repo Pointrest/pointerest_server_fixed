@@ -12,7 +12,7 @@ namespace Data
         IEnumerable<T> GetAll();
         T Get(int id);
         void Post(int GestoreID, CreatePuntoInteresseCommand command);
-        void Put(UpdatePuntoInteresseCommand udateCommand);
+        void Put(UpdatePIDataCommand udateCommand);
         void Delete(int id);
     }
 }
