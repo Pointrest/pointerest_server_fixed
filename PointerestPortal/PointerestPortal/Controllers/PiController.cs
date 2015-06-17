@@ -32,7 +32,7 @@ namespace PointrestServerSide.Controllers
         }
 
         [HttpGet]
-        [Route("api/pi/username/{username}")]
+        [Route("api/pi/username/{username}/")]
         public List<PIQuery> Get(string username)
         {
             return _repository.Get(username).ToList();
@@ -48,7 +48,7 @@ namespace PointrestServerSide.Controllers
         // POST: api/Pi
         [HttpPost]
         [Authorize]
-        [Route("api/pi/{gestoreusername}")]
+        [Route("api/pi/{gestoreusername}/")]
         public void Post(string gestoreusername, CreatePuntoInteresseCommand createCommand)
         {
             _repository.Post(gestoreusername, createCommand);

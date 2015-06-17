@@ -3,18 +3,12 @@
     var gestore;
 
     $('#login-form-link').click(function (e) {
-        $("#login-form").delay(100).fadeIn(100);
-        $("#register-form").fadeOut(100);
-        $('#register-form-link').removeClass('active');
-        $(this).addClass('active');
-        e.preventDefault();
+        
+        showLoginForm($(this),e);
     });
     $('#register-form-link').click(function (e) {
-        $("#register-form").delay(100).fadeIn(100);
-        $("#login-form").fadeOut(100);
-        $('#login-form-link').removeClass('active');
-        $(this).addClass('active');
-        e.preventDefault();
+        
+        showRegisterForm($(this),e);
     });
 
     // handle register form
@@ -36,8 +30,6 @@
 
             $.post("api/Account/register", registerModel, function () {
 
-                alert("registered gestore");
-
                 gestore = {
                     "Username": email,
                     "Password": password,
@@ -45,9 +37,9 @@
                     "Cognome": $('#cognome').val()
                 };
 
-                $.post("api/gestore", gestore, function() {
-
-                    alert("posted gestore");
+                $.post("api/gestore", gestore, function () {
+                    $('.form-group > input').val('');
+                    showLoginForm(null, null);
                 });
             }); 
         }  
@@ -69,8 +61,6 @@
             url: '/Token',
             data: loginData
         }).done(function (data) {
-            //self.user(data.userName);
-            alert('Login ok');
             sessionStorage.setItem("tokenKey", data.access_token);
             window.location.href = "/manage?username=" + loginData.username;
         }).fail(function () {
@@ -79,3 +69,27 @@
     });
 });
 
+function showLoginForm(obj,e) {
+
+    $("#login-form").delay(100).fadeIn(100);
+    $("#register-form").fadeOut(100);
+    $('#register-form-link').removeClass('active');
+
+    if (obj == null) {
+        $('#login-form-link').addClass('active');
+    } else {
+        $(obj).addClass('active');
+    }
+
+    if(e != null)
+        e.preventDefault();
+}
+
+function showRegisterForm(obj, e) {
+
+    $("#register-form").delay(100).fadeIn(100);
+    $("#login-form").fadeOut(100);
+    $('#login-form-link').removeClass('active');
+    $(obj).addClass('active');
+    e.preventDefault();
+}

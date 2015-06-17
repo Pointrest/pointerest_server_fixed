@@ -82,7 +82,7 @@ function addPI(gestoreUserName, headField) {
         var headers = getToken();
 
         $.ajax({
-            url :'api/pi/' + gestoreUsername, 
+            url :'api/pi/' + gestoreUsername + '/', 
             type: 'POST',
             headers: headers,
             data: addPIData, 
@@ -108,7 +108,7 @@ function getGestorePIAndAppendThem() {
 
     tabella.empty();
 
-    $.get("/api/pi/username/" + gestoreUsername, function (data, textStatus, jqXHR) {
+    $.get("/api/pi/username/" + gestoreUsername + "/", function (data, textStatus, jqXHR) {
 
         var images = [];
         $.each(data, function (index, element) {
