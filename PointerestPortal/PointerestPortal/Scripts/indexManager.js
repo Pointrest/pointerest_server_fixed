@@ -13,7 +13,8 @@ $(function () {
         sottocategorie = data;
     });
 
-    gestoreUsername = getQueryVariable("username");
+    //gestoreUsername = getQueryVariable("username");
+    gestoreUsername = sessionStorage.getItem("gestoreUsername")
     tabella = $('#puntiInteresseGestore');
 
     $('#addPIButton').on('click', function () {
@@ -79,17 +80,37 @@ function addPI(gestoreUserName, headField) {
             'Longitudine': $('#longitudine').val()
         }
 
-        $.post('api/pi/' + gestoreUsername, addPIData, function (data, textStatus, jqXHR) { alert('ok'); });
+        var headers = getToken();
+
+        $.ajax({
+            url :'api/pi/' + gestoreUsername + '/', 
+            type: 'POST',
+            headers: headers,
+            data: addPIData, 
+            success: function (data, textStatus, jqXHR) {
+                $('#dataModal').modal('hide');
+                getGestorePIAndAppendThem();
+            }
+        });
     });
     $('#cancelPIDataUpdate').off('click').click(function () { $('#dataModal').modal('hide'); })
     $('#updatePIData').text('Aggiungi Punto Interesse');
+}
+
+function getToken() {
+    var token = sessionStorage.getItem('tokenKey');
+    var headers = {};
+    if (token) {
+        headers.Authorization = 'Bearer ' + token;
+    }
+    return headers;
 }
 
 function getGestorePIAndAppendThem() {
 
     tabella.empty();
 
-    $.get("/api/pi/username/" + gestoreUsername, function (data, textStatus, jqXHR) {
+    $.get("/api/pi/username/" + gestoreUsername + "/", function (data, textStatus, jqXHR) {
 
         var images = [];
         $.each(data, function (index, element) {
@@ -144,9 +165,12 @@ function getGestorePIAndAppendThem() {
             var row = $(this).parent().parent('tr');
             var ID = row.attr('data-id');
 
+            var headers = getToken();
+
             $.ajax({
                 url: '/api/pi/' + ID,
                 type: 'DELETE',
+                headers: headers,
                 success: function (result) {
                     console.log("Cancelled PI " + ID);
                     row.remove();
@@ -182,19 +206,7 @@ function showImages(imagesArray, currentIndex, piIndex) {
 
     $.each(tmpArray, function (eIndex, element) {
 
-        var imageRow = '<div class="row imageRow">'
-                    + '<div class="col-md-7 imgContainer">'
-                    + '<img data-arrayindex="'
-                    + eIndex
-                    + '" src="'
-                    + imagesArray[currentIndex][eIndex].ImageData
-                    + '" /></div>'
-                    + '<div class="col-md-5">'
-                    + '<button type="submit" class="btn btn-default deleteImg" style="width:100%;">Delete Image</button>'
-                    + '</div>'
-                    + '</div>';
-
-        $('#imagesContainer').append(imageRow);
+        $('#imagesContainer').append(createImageRow(eIndex, imagesArray[currentIndex][eIndex].ImageData));
     });
 
     $('.deleteImg').on('click', function () {
@@ -219,9 +231,12 @@ function showImages(imagesArray, currentIndex, piIndex) {
                                 "Images": tmpArray
                             };
 
+                            var headers = getToken();
+
                             $.ajax({
                                 url: "/api/pi/images/" + $('#imagesContainer').attr('data-piid'),
                                 type: 'PUT',
+                                headers: headers,
                                 data: updateImageObj,
                                 success: function (data) {
                                     $('#imagesModal').modal('hide');
@@ -299,6 +314,7 @@ function getSubCategorieOfCategoryAndAppendThem(categoryID, subcategoryID) {
 }
 
 function sendUpdatedData() {
+
     var updateDataCommand = {
         'ID': $('#dataContainer').attr('data-id'),
         'Nome': $('#nome').val(),
@@ -308,9 +324,12 @@ function sendUpdatedData() {
         'Longitudine': $('#longitudine').val()
     };
 
+    var headers = getToken();
+
     $.ajax({
         url: "/api/pi/" + $('#dataContainer').attr('data-id'),
         type: 'PUT',
+        headers: headers,
         data: updateDataCommand,
         success: function (data) {
             $('#dataModal').modal('hide');
@@ -333,19 +352,7 @@ function readURL(input, imageArray) {
             };
             imageArray[imageArray.length] = tmiImageObj;
 
-            var imageRow = '<div class="row">'
-                   + '<div class="col-md-6 imgContainer">'
-                   + '<img data-arrayindex="'
-                   + imageArray.length
-                   + '" src="'
-                   + e.target.result
-                   + '" /></div>'
-                   + '<div class="col-md-6">'
-                   + '<button type="submit" class="btn btn-default deleteImg" style="width:100%;">Delete Image</button>'
-                   + '</div>'
-                   + '</div>';
-
-            $('#imagesContainer').append(imageRow);
+            $('#imagesContainer').append(createImageRow(imageArray.length, e.target.result));
 
             $('.deleteImg').off('click').on('click', function () {
                 var obj = $(this);
@@ -360,5 +367,20 @@ function removeImageFromArray(button, array, index) {
 
     array[index] = null;
     $(button).parent().parent('.row').remove();
+}
+
+function createImageRow(index, imageData) {
+
+    return  '<div class="row imageRow">'
+                   + '<div class="col-md-7 imgContainer">'
+                   + '<img data-arrayindex="'
+                   + index
+                   + '" src="'
+                   + imageData
+                   + '" /></div>'
+                   + '<div class="col-md-5">'
+                   + '<button type="submit" class="btn btn-default deleteImg" style="width:100%;">Delete Image</button>'
+                   + '</div>'
+                   + '</div>';
 }
 
