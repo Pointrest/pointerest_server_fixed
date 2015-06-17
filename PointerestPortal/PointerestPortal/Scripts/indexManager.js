@@ -79,10 +79,29 @@ function addPI(gestoreUserName, headField) {
             'Longitudine': $('#longitudine').val()
         }
 
-        $.post('api/pi/' + gestoreUsername, addPIData, function (data, textStatus, jqXHR) { alert('ok'); });
+        var headers = getToken();
+
+        $.ajax({
+            url :'api/pi/' + gestoreUsername, 
+            type: 'POST',
+            headers: headers,
+            data: addPIData, 
+            success: function (data, textStatus, jqXHR) {
+                alert('ok');
+            }
+        });
     });
     $('#cancelPIDataUpdate').off('click').click(function () { $('#dataModal').modal('hide'); })
     $('#updatePIData').text('Aggiungi Punto Interesse');
+}
+
+function getToken() {
+    var token = sessionStorage.getItem('tokenKey');
+    var headers = {};
+    if (token) {
+        headers.Authorization = 'Bearer ' + token;
+    }
+    return headers;
 }
 
 function getGestorePIAndAppendThem() {
@@ -144,9 +163,12 @@ function getGestorePIAndAppendThem() {
             var row = $(this).parent().parent('tr');
             var ID = row.attr('data-id');
 
+            var headers = getToken();
+
             $.ajax({
                 url: '/api/pi/' + ID,
                 type: 'DELETE',
+                headers: headers,
                 success: function (result) {
                     console.log("Cancelled PI " + ID);
                     row.remove();
@@ -219,9 +241,12 @@ function showImages(imagesArray, currentIndex, piIndex) {
                                 "Images": tmpArray
                             };
 
+                            var headers = getToken();
+
                             $.ajax({
                                 url: "/api/pi/images/" + $('#imagesContainer').attr('data-piid'),
                                 type: 'PUT',
+                                headers: headers,
                                 data: updateImageObj,
                                 success: function (data) {
                                     $('#imagesModal').modal('hide');
@@ -308,9 +333,12 @@ function sendUpdatedData() {
         'Longitudine': $('#longitudine').val()
     };
 
+    var headers = getToken();
+
     $.ajax({
         url: "/api/pi/" + $('#dataContainer').attr('data-id'),
         type: 'PUT',
+        headers: headers,
         data: updateDataCommand,
         success: function (data) {
             $('#dataModal').modal('hide');

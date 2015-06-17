@@ -140,10 +140,7 @@ namespace Repositories
                 {
                     using (SqlDataReader reader = command.ExecuteReader())
                     {
-                        while (reader.Read())
-                        {
                             AddPIToList(puntiInteresse, reader);
-                        }
                     }
                 }
             }
@@ -401,7 +398,7 @@ namespace Repositories
             return image;
         }
 
-        public IEnumerable<PIQuery> GetPIInRadius(double latitudine, double longitudine, int raggio)
+        public IEnumerable<PIMobileQuery> GetPIInRadius(double latitudine, double longitudine, int raggio)
         {
             List<PIQuery> allPI = GetAllPI().ToList();
             List<PIQuery> userWantedPI = new List<PIQuery>();
@@ -419,7 +416,23 @@ namespace Repositories
                     userWantedPI.Add(puntoInteresse);
                 }
             }
-            return userWantedPI;
+
+            List<PIMobileQuery> mobilePIs = new List<PIMobileQuery>();
+            foreach (var piQuery in allPI)
+            {
+                var images = new List<int>();
+                foreach(var image in piQuery.Images) {
+
+                    if(image.ImageData != null)
+                        images.Add(image.ImageID);
+                }
+
+                mobilePIs.Add(new PIMobileQuery(piQuery.ID, piQuery.Nome, piQuery.CategoriaID, piQuery.Categoria, piQuery.SottocategoriaID,
+                                                piQuery.Sottocategoria, piQuery.Descrizione, piQuery.Latitudine, piQuery.Longitudine
+                                                , images));
+            }
+
+            return mobilePIs;
         }
     }
 }

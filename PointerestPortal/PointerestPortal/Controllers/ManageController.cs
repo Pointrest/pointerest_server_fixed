@@ -13,17 +13,5 @@ namespace PointerestPortal.Controllers
         {
             return View();
         }
-
-        [Authorize]
-        public ActionResult Create()
-        {
-            return View();
-        }
-
-        [Authorize]
-        public ActionResult Update()
-        {
-            return View();
-        }
     }
 }

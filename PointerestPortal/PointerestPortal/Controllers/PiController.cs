@@ -40,13 +40,14 @@ namespace PointrestServerSide.Controllers
 
         [HttpGet]
         [Route("api/pi/filter/{latitudine}/{longitudine}/{raggio}")]
-        public List<PIQuery> Get(double latitudine, double longitudine, int raggio)
+        public List<PIMobileQuery> Get(double latitudine, double longitudine, int raggio)
         {
             return _repository.GetPIInRadius(latitudine, longitudine, raggio).ToList();
         }
 
         // POST: api/Pi
         [HttpPost]
+        [Authorize]
         [Route("api/pi/{gestoreusername}")]
         public void Post(string gestoreusername, CreatePuntoInteresseCommand createCommand)
         {
@@ -55,12 +56,14 @@ namespace PointrestServerSide.Controllers
 
         // PUT: api/Pi/5
         [HttpPut]
+        [Authorize]
         public void Put([FromBody]UpdatePIDataCommand updatedData)
         {
             _repository.Put(updatedData);
         }
 
         [HttpPut]
+        [Authorize]
         [Route("api/pi/images/{id}")]
         public void Put(int id, [FromBody]UpdatePIImagesCommand updatImagesCommand)
         {
@@ -69,6 +72,7 @@ namespace PointrestServerSide.Controllers
 
         //// DELETE: api/Pi/5
         [HttpDelete]
+        [Authorize]
         [Route("api/pi/{id}")]
         public void Delete(int id)
         {
