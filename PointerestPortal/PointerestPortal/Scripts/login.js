@@ -62,7 +62,8 @@
             data: loginData
         }).done(function (data) {
             sessionStorage.setItem("tokenKey", data.access_token);
-            window.location.href = "/manage?username=" + loginData.username;
+            sessionStorage.setItem("gestoreUsername", loginData.username)
+            window.location.href = "/manage";
         }).fail(function () {
             alert('Login error');
         });

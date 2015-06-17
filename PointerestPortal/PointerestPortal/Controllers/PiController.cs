@@ -57,7 +57,8 @@ namespace PointrestServerSide.Controllers
         // PUT: api/Pi/5
         [HttpPut]
         [Authorize]
-        public void Put([FromBody]UpdatePIDataCommand updatedData)
+        [Route("api/pi/{id}")]
+        public void Put(int id, [FromBody]UpdatePIDataCommand updatedData)
         {
             _repository.Put(updatedData);
         }

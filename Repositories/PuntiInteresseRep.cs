@@ -48,14 +48,17 @@ namespace Repositories
                     tmp.Sottocategoria = reader.GetValue<string>("SubCategoryName");
                     tmp.Latitudine = reader.GetValue<double>("Latitudine");
                     tmp.Longitudine = reader.GetValue<double>("Longitudine");
+                    tmp.Images = new List<ImmaginePIQuery>();
 
                     ImmaginePIQuery image = CreateImage(reader);
-                    tmp.Images = new List<ImmaginePIQuery>();
-                    tmp.Images.Add(image);
-
+                    
+                    if (image.ImageData != null)
+                    {
+                        tmp.Images.Add(image);
+                        
+                    }
                     puntiInteresse.Add(tmp);
                     index++;
-
                     tmpID = ID;
                 }
                 else

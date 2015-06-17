@@ -13,7 +13,8 @@ $(function () {
         sottocategorie = data;
     });
 
-    gestoreUsername = getQueryVariable("username");
+    //gestoreUsername = getQueryVariable("username");
+    gestoreUsername = sessionStorage.getItem("gestoreUsername")
     tabella = $('#puntiInteresseGestore');
 
     $('#addPIButton').on('click', function () {
@@ -87,7 +88,8 @@ function addPI(gestoreUserName, headField) {
             headers: headers,
             data: addPIData, 
             success: function (data, textStatus, jqXHR) {
-                alert('ok');
+                $('#dataModal').modal('hide');
+                getGestorePIAndAppendThem();
             }
         });
     });
@@ -204,19 +206,7 @@ function showImages(imagesArray, currentIndex, piIndex) {
 
     $.each(tmpArray, function (eIndex, element) {
 
-        var imageRow = '<div class="row imageRow">'
-                    + '<div class="col-md-7 imgContainer">'
-                    + '<img data-arrayindex="'
-                    + eIndex
-                    + '" src="'
-                    + imagesArray[currentIndex][eIndex].ImageData
-                    + '" /></div>'
-                    + '<div class="col-md-5">'
-                    + '<button type="submit" class="btn btn-default deleteImg" style="width:100%;">Delete Image</button>'
-                    + '</div>'
-                    + '</div>';
-
-        $('#imagesContainer').append(imageRow);
+        $('#imagesContainer').append(createImageRow(eIndex, imagesArray[currentIndex][eIndex].ImageData));
     });
 
     $('.deleteImg').on('click', function () {
@@ -324,6 +314,7 @@ function getSubCategorieOfCategoryAndAppendThem(categoryID, subcategoryID) {
 }
 
 function sendUpdatedData() {
+
     var updateDataCommand = {
         'ID': $('#dataContainer').attr('data-id'),
         'Nome': $('#nome').val(),
@@ -361,19 +352,7 @@ function readURL(input, imageArray) {
             };
             imageArray[imageArray.length] = tmiImageObj;
 
-            var imageRow = '<div class="row">'
-                   + '<div class="col-md-6 imgContainer">'
-                   + '<img data-arrayindex="'
-                   + imageArray.length
-                   + '" src="'
-                   + e.target.result
-                   + '" /></div>'
-                   + '<div class="col-md-6">'
-                   + '<button type="submit" class="btn btn-default deleteImg" style="width:100%;">Delete Image</button>'
-                   + '</div>'
-                   + '</div>';
-
-            $('#imagesContainer').append(imageRow);
+            $('#imagesContainer').append(createImageRow(imageArray.length, e.target.result));
 
             $('.deleteImg').off('click').on('click', function () {
                 var obj = $(this);
@@ -388,5 +367,20 @@ function removeImageFromArray(button, array, index) {
 
     array[index] = null;
     $(button).parent().parent('.row').remove();
+}
+
+function createImageRow(index, imageData) {
+
+    return  '<div class="row imageRow">'
+                   + '<div class="col-md-7 imgContainer">'
+                   + '<img data-arrayindex="'
+                   + index
+                   + '" src="'
+                   + imageData
+                   + '" /></div>'
+                   + '<div class="col-md-5">'
+                   + '<button type="submit" class="btn btn-default deleteImg" style="width:100%;">Delete Image</button>'
+                   + '</div>'
+                   + '</div>';
 }
 
