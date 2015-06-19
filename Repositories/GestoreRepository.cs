@@ -22,7 +22,6 @@ namespace Repositories
         public GestoreRepository()
             : this("connectionString")
         {
-
         }
 
         public GestoreRepository(string connectionString)
@@ -44,8 +43,7 @@ namespace Repositories
                 string query = @"SELECT * from Gestori "
                                 + " WHERE Gestori.ID = " + id;
 
-                SqlTransaction transaction;
-                using (var command = new System.Data.SqlClient.SqlCommand(query, connection, transaction = connection.BeginTransaction()))
+                using (var command = new System.Data.SqlClient.SqlCommand(query, connection))
                 {
                     using (SqlDataReader reader = command.ExecuteReader())
                     {
@@ -62,7 +60,6 @@ namespace Repositories
                         }
                     }
                 }
-                transaction.Commit();
                 connection.Close();
             }
             return gestore;
@@ -97,7 +94,6 @@ namespace Repositories
                     command.Parameters.Add(new SqlParameter("@Password", gestore.password));
 
                     int createdGestoreID = (int)command.ExecuteScalar();
-
 
                     transaction.Commit();
                     connection.Close();

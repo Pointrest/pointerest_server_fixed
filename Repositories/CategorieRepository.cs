@@ -17,7 +17,6 @@ namespace Repositories
         public CategorieRepository()
             : this("connectionString")
         {
-
         }
 
         public CategorieRepository(string connectionString)
@@ -29,7 +28,6 @@ namespace Repositories
             else mConnectionString = cs.ConnectionString;
         }
 
-       
          public Categoria Get(int id){
              
             Categoria categoria = null;
@@ -61,7 +59,6 @@ namespace Repositories
             return categoria;
 
         }
-
 
          public IEnumerable<Categoria> GetAll()
          {
