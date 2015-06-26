@@ -14,15 +14,12 @@ using DTO.Commands;
 
 namespace Repositories
 {
-    public class GestoreRepository// : IGestoreRepository<HttpResponseMessage>
+    public class GestoreRepository
     {
         string mConnectionString;
         private string p;
 
-        public GestoreRepository()
-            : this("connectionString")
-        {
-        }
+        public GestoreRepository() : this("connectionString") {}
 
         public GestoreRepository(string connectionString)
         {

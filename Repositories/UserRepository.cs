@@ -89,12 +89,11 @@ namespace Repositories
 
                     int lastID = command.ExecuteNonQuery();
 
-
                     transaction.Commit();
                     connection.Close();
-                  
-                    return getHttpStatusCode(lastID);                   
-                }
+
+                    return getHttpStatusCode(lastID);            
+                }  
             }
         }
 
@@ -105,7 +104,5 @@ namespace Repositories
             else
                 return new HttpResponseMessage(HttpStatusCode.InternalServerError);
         }
-
-        
     }
 }

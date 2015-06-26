@@ -1,9 +1,11 @@
 ﻿using Repositories;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Web.Http;
 
 namespace PointerestPortal.Controllers
@@ -17,7 +19,7 @@ namespace PointerestPortal.Controllers
         }
 
         // GET: api/Immagini/5
-        public string Get(int id)
+        public HttpResponseMessage Get(int id)
         {
             String immgine64 =  _rep.Get(id);
             String s = immgine64.Split(',')[1];

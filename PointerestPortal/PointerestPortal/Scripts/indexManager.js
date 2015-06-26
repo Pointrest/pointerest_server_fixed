@@ -206,7 +206,7 @@ function showImages(imagesArray, currentIndex, piIndex) {
 
     $.each(tmpArray, function (eIndex, element) {
 
-        $('#imagesContainer').append(createImageRow(eIndex, imagesArray[currentIndex][eIndex].ImageData));
+        $('#imagesContainer').append(createImageRow(eIndex, imagesArray[currentIndex][eIndex].ImageData, "show"));
     });
 
     $('.deleteImg').on('click', function () {
@@ -352,7 +352,7 @@ function readURL(input, imageArray) {
             };
             imageArray[imageArray.length] = tmiImageObj;
 
-            $('#imagesContainer').append(createImageRow(imageArray.length, e.target.result));
+            $('#imagesContainer').append(createImageRow(imageArray.length, e.target.result, "new"));
 
             $('.deleteImg').off('click').on('click', function () {
                 var obj = $(this);
@@ -369,13 +369,22 @@ function removeImageFromArray(button, array, index) {
     $(button).parent().parent('.row').remove();
 }
 
-function createImageRow(index, imageData) {
+function createImageRow(index, imageData, mode) {
+
+    var src;
+
+    if (mode == 'new') {
+
+        src = '" src="'
+    } else if (mode == 'show') {
+        src = '" src="data:image/jpeg;base64,';
+    }
 
     return  '<div class="row imageRow">'
                    + '<div class="col-md-7 imgContainer">'
                    + '<img data-arrayindex="'
                    + index
-                   + '" src="'
+                   + src
                    + imageData
                    + '" /></div>'
                    + '<div class="col-md-5">'
