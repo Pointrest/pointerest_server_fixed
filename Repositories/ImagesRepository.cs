@@ -17,7 +17,6 @@ namespace Repositories
         public ImagesRepository()
             : this("connectionString")
         {
-
         }
 
         public ImagesRepository(string connectionString)
@@ -30,7 +29,6 @@ namespace Repositories
         }
         public string Get(int id)
         {
-            string image = null;
             using (var connection = new SqlConnection(mConnectionString))
             {
                 connection.Open();

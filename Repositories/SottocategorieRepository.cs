@@ -17,7 +17,6 @@ namespace Repositories
         public SottocategorieRepository()
             : this("connectionString")
         {
-
         }
 
         public SottocategorieRepository(string connectionString)
@@ -74,8 +73,7 @@ namespace Repositories
                                 FROM [dbo].[Sottocategorie]
                                 WHERE Sottocategorie.CategoriaID = " + id;
 
-                SqlTransaction transaction;
-                using (var command = new System.Data.SqlClient.SqlCommand(query, connection, transaction = connection.BeginTransaction()))
+                using (var command = new System.Data.SqlClient.SqlCommand(query, connection))
                 {
                     using (SqlDataReader reader = command.ExecuteReader())
                     {
@@ -89,7 +87,6 @@ namespace Repositories
                         }
                     }
                 }
-                transaction.Commit();
                 connection.Close();
             }
             return sottoCategorie;

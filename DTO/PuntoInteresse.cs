@@ -1,6 +1,7 @@
 ﻿using DTO;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity.Spatial;
 using System.Drawing;
 using System.Linq;
 using System.Web;
@@ -17,10 +18,8 @@ namespace DTO
         public int SottocategoriaID { get; set; }
         public string Sottocategoria { get; set; }
         public string Descrizione { get; set; }
-        public double Latitudine { get; set; }
-        public double Longitudine { get; set; }
+        public DbGeography GEOPOint { get; set; }
         public List<ImmaginePuntoInteresse> Images { get; set; }
-
         public PuntoInteresse() { }
     }
 }
