@@ -9,30 +9,43 @@ $(function () {
 
     if (token != null) {
 
-    $.get('/api/categorie', function (data, textStatus, jqXHR) {
-        categorie = data;
-    });
+        $.get('/api/categorie', function (data, textStatus, jqXHR) {
+            categorie = data;
+        });
 
-    $.get('/api/sottocategorie', function (data, textStatus, jqXHR) {
-        sottocategorie = data;
-    });
+        $.get('/api/sottocategorie', function (data, textStatus, jqXHR) {
+            sottocategorie = data;
+        });
 
-    gestoreUsername = sessionStorage.getItem("gestoreUsername")
-    tabella = $('#puntiInteresseGestore');
+        gestoreUsername = sessionStorage.getItem("gestoreUsername")
+        tabella = $('#puntiInteresseGestore');
 
-    $('#addPIButton').on('click', function () {
-        $('#dataModal').modal();
-        addPI(gestoreUsername, $('.headField'));
-    });
+        $('#addPIButton').on('click', function () {
+            $('#dataModal').modal();
+            addPI(gestoreUsername, $('.headField'));
+            reInitializeMapContainer();
+            
+            
+        });
 
-    getGestorePIAndAppendThem();
+        $('#dataModal').on('shown.bs.modal', function () {
+            initializeMap(null);
+        });
+
+        getGestorePIAndAppendThem();
     }
 
     else {
 
         window.location = "../home"
     }
-})
+});
+
+function reInitializeMapContainer() {
+    var mapPieces = '<input id="pac-input" class="controls" type="text" placeholder="Search Box">'
+                  + '<div id="map-canvas"></div>';
+    $('#mapContainer').empty().append(mapPieces);
+}
 
 function addPI(gestoreUserName, headField) {
 
@@ -44,11 +57,12 @@ function addPI(gestoreUserName, headField) {
             'Nome': $('#nome').val(),
             'SottocategoriaID': $("#sottoCategorie option:selected").val(),
             'Descrizione': $('#descrizione').val(),
+            'Indirizzo': $('#indirizzo').val(),
             'Latitudine': $('#latitudine').val(),
             'Longitudine': $('#longitudine').val()
         }
 
-        var headers = getToken();
+        var headers = createHeaders();
 
         $.ajax({
             url: 'api/pi/' + gestoreUsername + '/',
@@ -61,6 +75,7 @@ function addPI(gestoreUserName, headField) {
             }
         });
     });
+
     $('#cancelPIDataUpdate').off('click').click(function () { $('#dataModal').modal('hide'); })
     $('#updatePIData').text('Aggiungi Punto Interesse');
 }
@@ -127,22 +142,7 @@ function createInputFields(headField) {
             'Latitudine': $('#latitudine').val(),
             'Longitudine': $('#longitudine').val()
         }
-
-function getToken() {
-    var token = sessionStorage.getItem('tokenKey');
-    if (token) {
-        return token;
-            }
-    return null;
-}
-
-function createHeaders() {
-    var token = getToken;
-    if(token){
-    var headers = {};
-        headers.Authorization = 'Bearer ' + token;
-        return headers;
-    }
+    });
 }
 
 function getGestorePIAndAppendThem() {
@@ -162,10 +162,11 @@ function getGestorePIAndAppendThem() {
                        + '<td class="piField">' + element.Indirizzo + "</td>"
                        + '<td class="piField">' + element.Latitudine + "</td>"
                        + '<td class="piField">' + element.Longitudine + "</td>"
-                       + '<td><span class="clickable glyphicon glyphicon-picture showImages" aria-hidden="true"></span></td>'
-                       + '<td><span class="clickable glyphicon glyphicon-edit editPI" aria-hidden="true"></span></td>'
-                       + '<td> <span class="clickable glyphicon glyphicon-plus addOffer" aria-hidden="true"></span></td>'
-                       + '<td><span class="clickable glyphicon glyphicon-trash deletePI" aria-hidden="true"></span></td>'
+                       + '<td><span title="Show Images"class="clickable glyphicon glyphicon-picture showImages" aria-hidden="true"></span></td>'
+                       + '<td><span title="Edit Data" class="clickable glyphicon glyphicon-edit editPI" aria-hidden="true"></span></td>'
+                        + '<td> <span title="Show Offerts" class="clickable glyphicon glyphicon-gift showOfferts" aria-hidden="true"></span></td>'
+                       + '<td> <span title="Add Offert" class="clickable glyphicon glyphicon-plus addOffert" aria-hidden="true"></span></td>'
+                       + '<td><span title="Delete" class="clickable glyphicon glyphicon-trash deletePI" aria-hidden="true"></span></td>'
                        + "</tr>";
 
             images[index] = element.Images;
@@ -190,29 +191,22 @@ function getGestorePIAndAppendThem() {
             var row = $(this).parent().parent();
             var cells = row.children('.piField');
             $('#dataModal').modal();
+            reInitializeMapContainer();
             editPI(piID, categoryID, subcategoryID, headCells, cells);
             $('#updatePIData').off('click').on('click', sendUpdatedData);
             $('#cancelPIDataUpdate').off('click').click(function () { $('#dataModal').modal('hide'); })
             $('#updatePIData').text('Aggiorna Punto Interesse');
         });
 
-        // Add Offer
-        $('.addOffer').on('click', function () {
+        // Add Offerts
+        $('.addOffert').on('click', function () {
+            window.location = "manage/addofferte?PI=" + $(this).parent().parent('tr').attr('data-id');
+        });
 
-            
-            $.get('api/offerte/structure', function (data, textStatus, jqXHR) {
+        // Show Offerts
+        $('.showOfferts').on('click', function () {
 
-                $.each(data, function (index, element) {
-                    var div = '<div class="form-group">'
-                        + '<label for="data">' + $(element).text() + '</label>'
-                        + '<input type="text" class="form-control" id="' + $(element).text().toLowerCase() + '" placeholder="Enter '
-                        + $(element).text().toLowerCase() + '" '
-                        + 'value="" >'
-                        + '</div>';
-
-                    $('#dataContainer').append(div);
-                });
-            });
+            window.location = "manage/listofferte?PI=" + $(this).parent().parent('tr').attr('data-id');
         });
 
         // Delete PI
@@ -232,17 +226,6 @@ function getGestorePIAndAppendThem() {
             });
         });
     });
-}
-
-function getQueryVariable(variable) {
-
-    var query = window.location.search.substring(1);
-    var vars = query.split("&");
-    for (var i = 0; i < vars.length; i++) {
-        var pair = vars[i].split("=");
-        if (pair[0] == variable) { return pair[1]; }
-    }
-    return false;
 }
 
 function showImages(imagesArray, currentIndex, piIndex) {
@@ -307,50 +290,62 @@ function editPI(piID, categoryID, subcategoryID, headCells, cells) {
 
     $('#dataContainer').empty();
     $('#dataContainer').attr('data-id', piID);
+    var point = { "Lat": "", "Lon": "" };
 
-        $.each(cells, function (index, element) {
+    $.each(cells, function (index, element) {
 
-            var div;
+        var div;
 
-            if (headCells[index].textContent == "Categoria") {
-                div = '<div class="form-group">'
+        if (headCells[index].textContent == "Categoria") {
+            div = '<div class="form-group">'
+                    + '<label for="data">' + $(headCells[index]).text() + '</label>'
+                    + '<select id="categorie" class="form-control"></select>'
+                    + '</div>';
+        }
+        else if (headCells[index].textContent == "Sottocategoria") {
+            div = '<div class="form-group">'
+                    + '<label for="data">' + $(headCells[index]).text() + '</label>'
+                    + '<select id="sottoCategorie" class="form-control">'
+                    + '</select>'
+                    + '</div>';
+        }
+        else {
+
+            if (headCells[index].textContent == "Latitudine") {
+                point.Lat = $(cells[index]).text();
+            }
+
+            if (headCells[index].textContent == "Longitudine") {
+                point.Lon = $(cells[index]).text();
+            }
+
+            div = '<div class="form-group">'
                         + '<label for="data">' + $(headCells[index]).text() + '</label>'
-                        + '<select id="categorie" class="form-control"></select>'
+                        + '<input type="text" class="form-control" id="' + $(headCells[index]).text().toLowerCase() + '" placeholder="Enter email" '
+                        + 'value="' + $(cells[index]).text() + '" >'
                         + '</div>';
-            }
-            else if (headCells[index].textContent == "Sottocategoria") {
-                div = '<div class="form-group">'
-                        + '<label for="data">' + $(headCells[index]).text() + '</label>'
-                        + '<select id="sottoCategorie" class="form-control">'
-                        + '</select>'
-                        + '</div>';
-            }
-            else {
-                div = '<div class="form-group">'
-                            + '<label for="data">' + $(headCells[index]).text() + '</label>'
-                            + '<input type="text" class="form-control" id="' + $(headCells[index]).text().toLowerCase() + '" placeholder="Enter email" '
-                            + 'value="' + $(cells[index]).text() + '" >'
-                            + '</div>';
-            }
-            $('#dataContainer').append(div);
+        }
+        $('#dataContainer').append(div);
+    });
 
-        });
+    initializeMap(point);
+    $('#pac-input').css("visibility", "visible");
 
-        $.each(categorie, function (index, element) {
-            var option = '<option value="' + element.ID + '">' + element.CategoryName + '</option>';
-            $('#categorie').append(option);
-        });
+    $.each(categorie, function (index, element) {
+        var option = '<option value="' + element.ID + '">' + element.CategoryName + '</option>';
+        $('#categorie').append(option);
+    });
 
-        $('#categorie').val(categoryID);
-        getSubCategorieOfCategoryAndAppendThem(categoryID, subcategoryID);
+    $('#categorie').val(categoryID);
+    getSubCategorieOfCategoryAndAppendThem(categoryID, subcategoryID);
 
-        $('#categorie').change(function () {
+    $('#categorie').change(function () {
 
-            //clean old subcategorie
-            $('#sottoCategorie').empty();
-            //get subcategories of category
-            getSubCategorieOfCategoryAndAppendThem($("#categorie option:selected").val(), null);
-        });
+        //clean old subcategorie
+        $('#sottoCategorie').empty();
+        //get subcategories of category
+        getSubCategorieOfCategoryAndAppendThem($("#categorie option:selected").val(), null);
+    });
 }
 
 function getSubCategorieOfCategoryAndAppendThem(categoryID, subcategoryID) {
@@ -447,4 +442,3 @@ function createImageRow(index, imageData, mode) {
                    + '</div>'
                    + '</div>';
 }
-
