@@ -18,6 +18,7 @@ namespace DTO
         public int SottocategoriaID { get; set; }
         public string Sottocategoria { get; set; }
         public string Descrizione { get; set; }
+        public string Indirizzo { get; set; }
         public DbGeography GEOPOint { get; set; }
         public List<ImmaginePuntoInteresse> Images { get; set; }
         public PuntoInteresse() { }

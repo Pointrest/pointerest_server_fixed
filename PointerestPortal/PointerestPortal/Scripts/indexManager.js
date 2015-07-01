@@ -9,23 +9,23 @@ $(function () {
 
     if (token != null) {
 
-        $.get('/api/categorie', function (data, textStatus, jqXHR) {
-            categorie = data;
-        });
+    $.get('/api/categorie', function (data, textStatus, jqXHR) {
+        categorie = data;
+    });
 
-        $.get('/api/sottocategorie', function (data, textStatus, jqXHR) {
-            sottocategorie = data;
-        });
+    $.get('/api/sottocategorie', function (data, textStatus, jqXHR) {
+        sottocategorie = data;
+    });
 
-        gestoreUsername = sessionStorage.getItem("gestoreUsername")
-        tabella = $('#puntiInteresseGestore');
+    gestoreUsername = sessionStorage.getItem("gestoreUsername")
+    tabella = $('#puntiInteresseGestore');
 
-        $('#addPIButton').on('click', function () {
-            $('#dataModal').modal();
-            addPI(gestoreUsername, $('.headField'));
-        });
+    $('#addPIButton').on('click', function () {
+        $('#dataModal').modal();
+        addPI(gestoreUsername, $('.headField'));
+    });
 
-        getGestorePIAndAppendThem();
+    getGestorePIAndAppendThem();
     }
 
     else {
@@ -116,20 +116,30 @@ function createInputFields(headField) {
         //get subcategories of category
         getSubCategorieOfCategoryAndAppendThem($("#categorie option:selected").val(), null);
     });
-}
+
+    $('#updatePIData').off('click').on('click', function () {
+
+        var addPIData = {
+            'Nome': $('#nome').val(),
+            'SottocategoriaID': $("#sottoCategorie option:selected").val(),
+            'Descrizione': $('#descrizione').val(),
+            'Indirizzo': $('#indirizzo').val(),
+            'Latitudine': $('#latitudine').val(),
+            'Longitudine': $('#longitudine').val()
+        }
 
 function getToken() {
     var token = sessionStorage.getItem('tokenKey');
     if (token) {
         return token;
-    }
+            }
     return null;
 }
 
 function createHeaders() {
     var token = getToken;
     if(token){
-        var headers = {};
+    var headers = {};
         headers.Authorization = 'Bearer ' + token;
         return headers;
     }
@@ -149,6 +159,7 @@ function getGestorePIAndAppendThem() {
                        + '<td class="piField piCategory" data-categoryID="' + element.CategoriaID + '">' + element.Categoria + "</td>"
                        + '<td class="piField piSubcategory" data-subcategoryID="' + element.SottocategoriaID + '">' + element.Sottocategoria + "</td>"
                        + '<td class="piField">' + element.Descrizione + "</td>"
+                       + '<td class="piField">' + element.Indirizzo + "</td>"
                        + '<td class="piField">' + element.Latitudine + "</td>"
                        + '<td class="piField">' + element.Longitudine + "</td>"
                        + '<td><span class="clickable glyphicon glyphicon-picture showImages" aria-hidden="true"></span></td>'
@@ -297,49 +308,49 @@ function editPI(piID, categoryID, subcategoryID, headCells, cells) {
     $('#dataContainer').empty();
     $('#dataContainer').attr('data-id', piID);
 
-    $.each(cells, function (index, element) {
+        $.each(cells, function (index, element) {
 
-        var div;
+            var div;
 
-        if (headCells[index].textContent == "Categoria") {
-            div = '<div class="form-group">'
-                    + '<label for="data">' + $(headCells[index]).text() + '</label>'
-                    + '<select id="categorie" class="form-control"></select>'
-                    + '</div>';
-        }
-        else if (headCells[index].textContent == "Sottocategoria") {
-            div = '<div class="form-group">'
-                    + '<label for="data">' + $(headCells[index]).text() + '</label>'
-                    + '<select id="sottoCategorie" class="form-control">'
-                    + '</select>'
-                    + '</div>';
-        }
-        else {
-            div = '<div class="form-group">'
+            if (headCells[index].textContent == "Categoria") {
+                div = '<div class="form-group">'
                         + '<label for="data">' + $(headCells[index]).text() + '</label>'
-                        + '<input type="text" class="form-control" id="' + $(headCells[index]).text().toLowerCase() + '" placeholder="Enter email" '
-                        + 'value="' + $(cells[index]).text() + '" >'
+                        + '<select id="categorie" class="form-control"></select>'
                         + '</div>';
-        }
-        $('#dataContainer').append(div);
+            }
+            else if (headCells[index].textContent == "Sottocategoria") {
+                div = '<div class="form-group">'
+                        + '<label for="data">' + $(headCells[index]).text() + '</label>'
+                        + '<select id="sottoCategorie" class="form-control">'
+                        + '</select>'
+                        + '</div>';
+            }
+            else {
+                div = '<div class="form-group">'
+                            + '<label for="data">' + $(headCells[index]).text() + '</label>'
+                            + '<input type="text" class="form-control" id="' + $(headCells[index]).text().toLowerCase() + '" placeholder="Enter email" '
+                            + 'value="' + $(cells[index]).text() + '" >'
+                            + '</div>';
+            }
+            $('#dataContainer').append(div);
 
-    });
+        });
 
-    $.each(categorie, function (index, element) {
-        var option = '<option value="' + element.ID + '">' + element.CategoryName + '</option>';
-        $('#categorie').append(option);
-    });
+        $.each(categorie, function (index, element) {
+            var option = '<option value="' + element.ID + '">' + element.CategoryName + '</option>';
+            $('#categorie').append(option);
+        });
 
-    $('#categorie').val(categoryID);
-    getSubCategorieOfCategoryAndAppendThem(categoryID, subcategoryID);
+        $('#categorie').val(categoryID);
+        getSubCategorieOfCategoryAndAppendThem(categoryID, subcategoryID);
 
-    $('#categorie').change(function () {
+        $('#categorie').change(function () {
 
-        //clean old subcategorie
-        $('#sottoCategorie').empty();
-        //get subcategories of category
-        getSubCategorieOfCategoryAndAppendThem($("#categorie option:selected").val(), null);
-    });
+            //clean old subcategorie
+            $('#sottoCategorie').empty();
+            //get subcategories of category
+            getSubCategorieOfCategoryAndAppendThem($("#categorie option:selected").val(), null);
+        });
 }
 
 function getSubCategorieOfCategoryAndAppendThem(categoryID, subcategoryID) {
@@ -363,6 +374,7 @@ function sendUpdatedData() {
         'Nome': $('#nome').val(),
         'SottocategoriaID': $("#sottoCategorie option:selected").val(),
         'Descrizione': $('#descrizione').val(),
+        'Indirizzo': $('#indirizzo').val(),
         'Latitudine': $('#latitudine').val(),
         'Longitudine': $('#longitudine').val()
     };

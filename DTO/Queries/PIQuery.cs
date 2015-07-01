@@ -16,6 +16,7 @@ namespace DTO
         public int SottocategoriaID { get; set; }
         public string Sottocategoria { get; set; }
         public string Descrizione { get; set; }
+        public string Indirizzo { get; set; }
         public double Latitudine { get; set; }
         public double Longitudine { get; set; }
         public List<ImmaginePIQuery> Images { get; set; }
