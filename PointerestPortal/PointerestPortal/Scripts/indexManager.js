@@ -5,27 +5,67 @@ var gestoreUsername;
 
 $(function () {
 
-    $.get('/api/categorie', function (data, textStatus, jqXHR) {
-        categorie = data;
-    });
+    var token = getToken();
 
-    $.get('/api/sottocategorie', function (data, textStatus, jqXHR) {
-        sottocategorie = data;
-    });
+    if (token != null) {
 
-    //gestoreUsername = getQueryVariable("username");
-    gestoreUsername = sessionStorage.getItem("gestoreUsername")
-    tabella = $('#puntiInteresseGestore');
+        $.get('/api/categorie', function (data, textStatus, jqXHR) {
+            categorie = data;
+        });
 
-    $('#addPIButton').on('click', function () {
-        $('#dataModal').modal();
-        addPI(gestoreUsername, $('.headField'));
-    });
+        $.get('/api/sottocategorie', function (data, textStatus, jqXHR) {
+            sottocategorie = data;
+        });
 
-    getGestorePIAndAppendThem();
+        gestoreUsername = sessionStorage.getItem("gestoreUsername")
+        tabella = $('#puntiInteresseGestore');
+
+        $('#addPIButton').on('click', function () {
+            $('#dataModal').modal();
+            addPI(gestoreUsername, $('.headField'));
+        });
+
+        getGestorePIAndAppendThem();
+    }
+
+    else {
+
+        window.location = "../home"
+    }
 })
 
 function addPI(gestoreUserName, headField) {
+
+    createInputFields(headField);
+
+    $('#updatePIData').off('click').on('click', function () {
+
+        var addPIData = {
+            'Nome': $('#nome').val(),
+            'SottocategoriaID': $("#sottoCategorie option:selected").val(),
+            'Descrizione': $('#descrizione').val(),
+            'Latitudine': $('#latitudine').val(),
+            'Longitudine': $('#longitudine').val()
+        }
+
+        var headers = getToken();
+
+        $.ajax({
+            url: 'api/pi/' + gestoreUsername + '/',
+            type: 'POST',
+            headers: headers,
+            data: addPIData,
+            success: function (data, textStatus, jqXHR) {
+                $('#dataModal').modal('hide');
+                getGestorePIAndAppendThem();
+            }
+        });
+    });
+    $('#cancelPIDataUpdate').off('click').click(function () { $('#dataModal').modal('hide'); })
+    $('#updatePIData').text('Aggiungi Punto Interesse');
+}
+
+function createInputFields(headField) {
 
     $('#dataContainer').empty();
 
@@ -43,6 +83,14 @@ function addPI(gestoreUserName, headField) {
                     + '</select>'
                     + '</div>';
         }
+        else if ($(element).text() == "Latitudine" || $(element).text() == "Longitudine") {
+            div = '<div class="form-group">'
+                        + '<label for="data">' + $(element).text() + '</label>'
+                        + '<input type="text" class="form-control" id="' + $(element).text().toLowerCase()
+                        + '" placeholder="Select on the Map" '
+                        + 'value="" readonly>'
+                        + '</div>';
+        }
         else {
             div = '<div class="form-group">'
                         + '<label for="data">' + $(element).text() + '</label>'
@@ -59,7 +107,6 @@ function addPI(gestoreUserName, headField) {
         $('#categorie').append(option);
     });
 
-    //$('#categorie').val();
     getSubCategorieOfCategoryAndAppendThem($($("#categorie").children()[0]).val(), null);
 
     $('#categorie').change(function () {
@@ -69,41 +116,23 @@ function addPI(gestoreUserName, headField) {
         //get subcategories of category
         getSubCategorieOfCategoryAndAppendThem($("#categorie option:selected").val(), null);
     });
-
-    $('#updatePIData').off('click').on('click', function () {
-
-        var addPIData = {
-            'Nome': $('#nome').val(),
-            'SottocategoriaID': $("#sottoCategorie option:selected").val(),
-            'Descrizione': $('#descrizione').val(),
-            'Latitudine': $('#latitudine').val(),
-            'Longitudine': $('#longitudine').val()
-        }
-
-        var headers = getToken();
-
-        $.ajax({
-            url :'api/pi/' + gestoreUsername + '/', 
-            type: 'POST',
-            headers: headers,
-            data: addPIData, 
-            success: function (data, textStatus, jqXHR) {
-                $('#dataModal').modal('hide');
-                getGestorePIAndAppendThem();
-            }
-        });
-    });
-    $('#cancelPIDataUpdate').off('click').click(function () { $('#dataModal').modal('hide'); })
-    $('#updatePIData').text('Aggiungi Punto Interesse');
 }
 
 function getToken() {
     var token = sessionStorage.getItem('tokenKey');
-    var headers = {};
     if (token) {
-        headers.Authorization = 'Bearer ' + token;
+        return token;
     }
-    return headers;
+    return null;
+}
+
+function createHeaders() {
+    var token = getToken;
+    if(token){
+        var headers = {};
+        headers.Authorization = 'Bearer ' + token;
+        return headers;
+    }
 }
 
 function getGestorePIAndAppendThem() {
@@ -122,15 +151,17 @@ function getGestorePIAndAppendThem() {
                        + '<td class="piField">' + element.Descrizione + "</td>"
                        + '<td class="piField">' + element.Latitudine + "</td>"
                        + '<td class="piField">' + element.Longitudine + "</td>"
-                       + '<td><span class="glyphicon glyphicon-picture showImages" aria-hidden="true"></span></td>'
-                       + '<td><span class="glyphicon glyphicon-edit editPI" aria-hidden="true"></span></td>'
-                       + '<td><span class="glyphicon glyphicon-trash deletePI" aria-hidden="true"></span></td>'
+                       + '<td><span class="clickable glyphicon glyphicon-picture showImages" aria-hidden="true"></span></td>'
+                       + '<td><span class="clickable glyphicon glyphicon-edit editPI" aria-hidden="true"></span></td>'
+                       + '<td> <span class="clickable glyphicon glyphicon-plus addOffer" aria-hidden="true"></span></td>'
+                       + '<td><span class="clickable glyphicon glyphicon-trash deletePI" aria-hidden="true"></span></td>'
                        + "</tr>";
 
             images[index] = element.Images;
             tabella.append(row)
         });
 
+        // Show Images
         $('.showImages').on('click', function () {
             $('#imagesModal').modal();
             $('#imagesContainer').empty();
@@ -139,33 +170,45 @@ function getGestorePIAndAppendThem() {
             showImages(images, currentIndex - 1, piIndex);
         });
 
+        //Edit PI Data
         $('.editPI').on('click', function () {
-
-            //var rowIndex = $('#puntiInteresseGestore tr').index($(this).parent().parent('tr'));
             var piID = $(this).parent().parent('tr').attr('data-id');
             var categoryID = $(this).parent().siblings('.piCategory').attr('data-categoryid');
             var subcategoryID = $(this).parent().siblings('.piSubcategory').attr('data-subcategoryid');
-
             var headCells = $('.headField');
-
             var row = $(this).parent().parent();
             var cells = row.children('.piField');
-
             $('#dataModal').modal();
             editPI(piID, categoryID, subcategoryID, headCells, cells);
-
             $('#updatePIData').off('click').on('click', sendUpdatedData);
             $('#cancelPIDataUpdate').off('click').click(function () { $('#dataModal').modal('hide'); })
-
             $('#updatePIData').text('Aggiorna Punto Interesse');
         });
 
-        $('.deletePI').on('click', function () {
+        // Add Offer
+        $('.addOffer').on('click', function () {
 
+            
+            $.get('api/offerte/structure', function (data, textStatus, jqXHR) {
+
+                $.each(data, function (index, element) {
+                    var div = '<div class="form-group">'
+                        + '<label for="data">' + $(element).text() + '</label>'
+                        + '<input type="text" class="form-control" id="' + $(element).text().toLowerCase() + '" placeholder="Enter '
+                        + $(element).text().toLowerCase() + '" '
+                        + 'value="" >'
+                        + '</div>';
+
+                    $('#dataContainer').append(div);
+                });
+            });
+        });
+
+        // Delete PI
+        $('.deletePI').on('click', function () {
             var row = $(this).parent().parent('tr');
             var ID = row.attr('data-id');
-
-            var headers = getToken();
+            var headers = createHeaders();
 
             $.ajax({
                 url: '/api/pi/' + ID,
@@ -231,7 +274,7 @@ function showImages(imagesArray, currentIndex, piIndex) {
                                 "Images": tmpArray
                             };
 
-                            var headers = getToken();
+                            var headers = createHeaders();
 
                             $.ajax({
                                 url: "/api/pi/images/" + $('#imagesContainer').attr('data-piid'),
@@ -254,49 +297,49 @@ function editPI(piID, categoryID, subcategoryID, headCells, cells) {
     $('#dataContainer').empty();
     $('#dataContainer').attr('data-id', piID);
 
-        $.each(cells, function (index, element) {
+    $.each(cells, function (index, element) {
 
-            var div;
+        var div;
 
-            if (headCells[index].textContent == "Categoria") {
-                div = '<div class="form-group">'
+        if (headCells[index].textContent == "Categoria") {
+            div = '<div class="form-group">'
+                    + '<label for="data">' + $(headCells[index]).text() + '</label>'
+                    + '<select id="categorie" class="form-control"></select>'
+                    + '</div>';
+        }
+        else if (headCells[index].textContent == "Sottocategoria") {
+            div = '<div class="form-group">'
+                    + '<label for="data">' + $(headCells[index]).text() + '</label>'
+                    + '<select id="sottoCategorie" class="form-control">'
+                    + '</select>'
+                    + '</div>';
+        }
+        else {
+            div = '<div class="form-group">'
                         + '<label for="data">' + $(headCells[index]).text() + '</label>'
-                        + '<select id="categorie" class="form-control"></select>'
+                        + '<input type="text" class="form-control" id="' + $(headCells[index]).text().toLowerCase() + '" placeholder="Enter email" '
+                        + 'value="' + $(cells[index]).text() + '" >'
                         + '</div>';
-            }
-            else if (headCells[index].textContent == "Sottocategoria") {
-                div = '<div class="form-group">'
-                        + '<label for="data">' + $(headCells[index]).text() + '</label>'
-                        + '<select id="sottoCategorie" class="form-control">'
-                        + '</select>'
-                        + '</div>';
-            }
-            else {
-                div = '<div class="form-group">'
-                            + '<label for="data">' + $(headCells[index]).text() + '</label>'
-                            + '<input type="text" class="form-control" id="' + $(headCells[index]).text().toLowerCase() + '" placeholder="Enter email" '
-                            + 'value="' + $(cells[index]).text() + '" >'
-                            + '</div>';
-            }
-            $('#dataContainer').append(div);
+        }
+        $('#dataContainer').append(div);
 
-        });
+    });
 
-        $.each(categorie, function (index, element) {
-            var option = '<option value="' + element.ID + '">' + element.CategoryName + '</option>';
-            $('#categorie').append(option);
-        });
+    $.each(categorie, function (index, element) {
+        var option = '<option value="' + element.ID + '">' + element.CategoryName + '</option>';
+        $('#categorie').append(option);
+    });
 
-        $('#categorie').val(categoryID);
-        getSubCategorieOfCategoryAndAppendThem(categoryID, subcategoryID);
+    $('#categorie').val(categoryID);
+    getSubCategorieOfCategoryAndAppendThem(categoryID, subcategoryID);
 
-        $('#categorie').change(function () {
+    $('#categorie').change(function () {
 
-            //clean old subcategorie
-            $('#sottoCategorie').empty();
-            //get subcategories of category
-            getSubCategorieOfCategoryAndAppendThem($("#categorie option:selected").val(), null);
-        });
+        //clean old subcategorie
+        $('#sottoCategorie').empty();
+        //get subcategories of category
+        getSubCategorieOfCategoryAndAppendThem($("#categorie option:selected").val(), null);
+    });
 }
 
 function getSubCategorieOfCategoryAndAppendThem(categoryID, subcategoryID) {
@@ -324,7 +367,7 @@ function sendUpdatedData() {
         'Longitudine': $('#longitudine').val()
     };
 
-    var headers = getToken();
+    var headers = createHeaders();
 
     $.ajax({
         url: "/api/pi/" + $('#dataContainer').attr('data-id'),
@@ -380,7 +423,7 @@ function createImageRow(index, imageData, mode) {
         src = '" src="data:image/jpeg;base64,';
     }
 
-    return  '<div class="row imageRow">'
+    return '<div class="row imageRow">'
                    + '<div class="col-md-7 imgContainer">'
                    + '<img data-arrayindex="'
                    + index
