@@ -76,6 +76,7 @@ function addPI(gestoreUserName, headField) {
             'Nome': $('#nome').val(),
             'SottocategoriaID': $("#sottoCategorie option:selected").val(),
             'Descrizione': $('#descrizione').val(),
+            'Indirizzo': $('#indirizzo').val(),
             'Latitudine': $('#latitudine').val(),
             'Longitudine': $('#longitudine').val()
         }
@@ -120,6 +121,7 @@ function getGestorePIAndAppendThem() {
                        + '<td class="piField piCategory" data-categoryID="' + element.CategoriaID + '">' + element.Categoria + "</td>"
                        + '<td class="piField piSubcategory" data-subcategoryID="' + element.SottocategoriaID + '">' + element.Sottocategoria + "</td>"
                        + '<td class="piField">' + element.Descrizione + "</td>"
+                       + '<td class="piField">' + element.Indirizzo + "</td>"
                        + '<td class="piField">' + element.Latitudine + "</td>"
                        + '<td class="piField">' + element.Longitudine + "</td>"
                        + '<td><span class="glyphicon glyphicon-picture showImages" aria-hidden="true"></span></td>'
@@ -320,6 +322,7 @@ function sendUpdatedData() {
         'Nome': $('#nome').val(),
         'SottocategoriaID': $("#sottoCategorie option:selected").val(),
         'Descrizione': $('#descrizione').val(),
+        'Indirizzo': $('#indirizzo').val(),
         'Latitudine': $('#latitudine').val(),
         'Longitudine': $('#longitudine').val()
     };

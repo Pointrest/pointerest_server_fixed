@@ -12,6 +12,7 @@ namespace DTO
         public string Nome { get; set; }
         public string SottocategoriaID { get; set; }
         public string Descrizione { get; set; }
+        public string Indirizzo { get; set; }
         public double Latitudine { get; set; }
         public double Longitudine { get; set; }
     }
