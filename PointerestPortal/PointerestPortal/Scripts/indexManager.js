@@ -5,6 +5,10 @@ var gestoreUsername;
 
 $(function () {
 
+    var token = getToken();
+
+    if (token != null) {
+
     $.get('/api/categorie', function (data, textStatus, jqXHR) {
         categorie = data;
     });
@@ -13,7 +17,6 @@ $(function () {
         sottocategorie = data;
     });
 
-    //gestoreUsername = getQueryVariable("username");
     gestoreUsername = sessionStorage.getItem("gestoreUsername")
     tabella = $('#puntiInteresseGestore');
 
@@ -23,9 +26,46 @@ $(function () {
     });
 
     getGestorePIAndAppendThem();
+    }
+
+    else {
+
+        window.location = "../home"
+    }
 })
 
 function addPI(gestoreUserName, headField) {
+
+    createInputFields(headField);
+
+    $('#updatePIData').off('click').on('click', function () {
+
+        var addPIData = {
+            'Nome': $('#nome').val(),
+            'SottocategoriaID': $("#sottoCategorie option:selected").val(),
+            'Descrizione': $('#descrizione').val(),
+            'Latitudine': $('#latitudine').val(),
+            'Longitudine': $('#longitudine').val()
+        }
+
+        var headers = getToken();
+
+        $.ajax({
+            url: 'api/pi/' + gestoreUsername + '/',
+            type: 'POST',
+            headers: headers,
+            data: addPIData,
+            success: function (data, textStatus, jqXHR) {
+                $('#dataModal').modal('hide');
+                getGestorePIAndAppendThem();
+            }
+        });
+    });
+    $('#cancelPIDataUpdate').off('click').click(function () { $('#dataModal').modal('hide'); })
+    $('#updatePIData').text('Aggiungi Punto Interesse');
+}
+
+function createInputFields(headField) {
 
     $('#dataContainer').empty();
 
@@ -43,6 +83,14 @@ function addPI(gestoreUserName, headField) {
                     + '</select>'
                     + '</div>';
         }
+        else if ($(element).text() == "Latitudine" || $(element).text() == "Longitudine") {
+            div = '<div class="form-group">'
+                        + '<label for="data">' + $(element).text() + '</label>'
+                        + '<input type="text" class="form-control" id="' + $(element).text().toLowerCase()
+                        + '" placeholder="Select on the Map" '
+                        + 'value="" readonly>'
+                        + '</div>';
+        }
         else {
             div = '<div class="form-group">'
                         + '<label for="data">' + $(element).text() + '</label>'
@@ -59,7 +107,6 @@ function addPI(gestoreUserName, headField) {
         $('#categorie').append(option);
     });
 
-    //$('#categorie').val();
     getSubCategorieOfCategoryAndAppendThem($($("#categorie").children()[0]).val(), null);
 
     $('#categorie').change(function () {
@@ -81,30 +128,21 @@ function addPI(gestoreUserName, headField) {
             'Longitudine': $('#longitudine').val()
         }
 
-        var headers = getToken();
-
-        $.ajax({
-            url :'api/pi/' + gestoreUsername + '/', 
-            type: 'POST',
-            headers: headers,
-            data: addPIData, 
-            success: function (data, textStatus, jqXHR) {
-                $('#dataModal').modal('hide');
-                getGestorePIAndAppendThem();
-            }
-        });
-    });
-    $('#cancelPIDataUpdate').off('click').click(function () { $('#dataModal').modal('hide'); })
-    $('#updatePIData').text('Aggiungi Punto Interesse');
-}
-
 function getToken() {
     var token = sessionStorage.getItem('tokenKey');
-    var headers = {};
     if (token) {
+        return token;
+            }
+    return null;
+}
+
+function createHeaders() {
+    var token = getToken;
+    if(token){
+    var headers = {};
         headers.Authorization = 'Bearer ' + token;
+        return headers;
     }
-    return headers;
 }
 
 function getGestorePIAndAppendThem() {
@@ -124,15 +162,17 @@ function getGestorePIAndAppendThem() {
                        + '<td class="piField">' + element.Indirizzo + "</td>"
                        + '<td class="piField">' + element.Latitudine + "</td>"
                        + '<td class="piField">' + element.Longitudine + "</td>"
-                       + '<td><span class="glyphicon glyphicon-picture showImages" aria-hidden="true"></span></td>'
-                       + '<td><span class="glyphicon glyphicon-edit editPI" aria-hidden="true"></span></td>'
-                       + '<td><span class="glyphicon glyphicon-trash deletePI" aria-hidden="true"></span></td>'
+                       + '<td><span class="clickable glyphicon glyphicon-picture showImages" aria-hidden="true"></span></td>'
+                       + '<td><span class="clickable glyphicon glyphicon-edit editPI" aria-hidden="true"></span></td>'
+                       + '<td> <span class="clickable glyphicon glyphicon-plus addOffer" aria-hidden="true"></span></td>'
+                       + '<td><span class="clickable glyphicon glyphicon-trash deletePI" aria-hidden="true"></span></td>'
                        + "</tr>";
 
             images[index] = element.Images;
             tabella.append(row)
         });
 
+        // Show Images
         $('.showImages').on('click', function () {
             $('#imagesModal').modal();
             $('#imagesContainer').empty();
@@ -141,33 +181,45 @@ function getGestorePIAndAppendThem() {
             showImages(images, currentIndex - 1, piIndex);
         });
 
+        //Edit PI Data
         $('.editPI').on('click', function () {
-
-            //var rowIndex = $('#puntiInteresseGestore tr').index($(this).parent().parent('tr'));
             var piID = $(this).parent().parent('tr').attr('data-id');
             var categoryID = $(this).parent().siblings('.piCategory').attr('data-categoryid');
             var subcategoryID = $(this).parent().siblings('.piSubcategory').attr('data-subcategoryid');
-
             var headCells = $('.headField');
-
             var row = $(this).parent().parent();
             var cells = row.children('.piField');
-
             $('#dataModal').modal();
             editPI(piID, categoryID, subcategoryID, headCells, cells);
-
             $('#updatePIData').off('click').on('click', sendUpdatedData);
             $('#cancelPIDataUpdate').off('click').click(function () { $('#dataModal').modal('hide'); })
-
             $('#updatePIData').text('Aggiorna Punto Interesse');
         });
 
-        $('.deletePI').on('click', function () {
+        // Add Offer
+        $('.addOffer').on('click', function () {
 
+            
+            $.get('api/offerte/structure', function (data, textStatus, jqXHR) {
+
+                $.each(data, function (index, element) {
+                    var div = '<div class="form-group">'
+                        + '<label for="data">' + $(element).text() + '</label>'
+                        + '<input type="text" class="form-control" id="' + $(element).text().toLowerCase() + '" placeholder="Enter '
+                        + $(element).text().toLowerCase() + '" '
+                        + 'value="" >'
+                        + '</div>';
+
+                    $('#dataContainer').append(div);
+                });
+            });
+        });
+
+        // Delete PI
+        $('.deletePI').on('click', function () {
             var row = $(this).parent().parent('tr');
             var ID = row.attr('data-id');
-
-            var headers = getToken();
+            var headers = createHeaders();
 
             $.ajax({
                 url: '/api/pi/' + ID,
@@ -233,7 +285,7 @@ function showImages(imagesArray, currentIndex, piIndex) {
                                 "Images": tmpArray
                             };
 
-                            var headers = getToken();
+                            var headers = createHeaders();
 
                             $.ajax({
                                 url: "/api/pi/images/" + $('#imagesContainer').attr('data-piid'),
@@ -327,7 +379,7 @@ function sendUpdatedData() {
         'Longitudine': $('#longitudine').val()
     };
 
-    var headers = getToken();
+    var headers = createHeaders();
 
     $.ajax({
         url: "/api/pi/" + $('#dataContainer').attr('data-id'),
@@ -383,7 +435,7 @@ function createImageRow(index, imageData, mode) {
         src = '" src="data:image/jpeg;base64,';
     }
 
-    return  '<div class="row imageRow">'
+    return '<div class="row imageRow">'
                    + '<div class="col-md-7 imgContainer">'
                    + '<img data-arrayindex="'
                    + index

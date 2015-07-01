@@ -52,8 +52,8 @@ namespace Repositories
                     tmp.SottocategoriaID = reader.GetValue<int>("SottocategoriaID");
                     tmp.Sottocategoria = reader.GetValue<string>("SubCategoryName");
                     dynamic geoPoint = reader.GetValue(6);
-                    tmp.Latitudine = (double)geoPoint.Lat;
-                    tmp.Longitudine = (double)geoPoint.Long;
+                    tmp.Latitudine = (double)geoPoint.Long;
+                    tmp.Longitudine = (double)geoPoint.Lat;
                     tmp.Images = new List<ImmaginePIQuery>();
 
                     ImmaginePIQuery image = CreateImage(reader);
