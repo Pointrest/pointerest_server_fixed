@@ -16,6 +16,7 @@ namespace DTO
         public int SottocategoriaID { get; set; }
         public string Sottocategoria { get; set; }
         public string Descrizione { get; set; }
+        public string Indirizzo { get; set; }
         public double Latitudine { get; set; }
         public double Longitudine { get; set; }
         public List<int> ImagesID { get; set; }
@@ -23,7 +24,7 @@ namespace DTO
         public PIMobileQuery() { }
 
         public PIMobileQuery(int id, string nome, int categoryID, string category, int subCategoryID, string subCategory, string descrizione
-                            , double latitudine, double longitudine, List<int> imagesID)
+                            , string indirizzo, double latitudine, double longitudine, List<int> imagesID)
         {
             this.ID = id;
             this.Nome = nome;
@@ -32,6 +33,7 @@ namespace DTO
             this.SottocategoriaID = subCategoryID;
             this.Sottocategoria = subCategory;
             this.Descrizione = descrizione;
+            this.Indirizzo = indirizzo;
             this.Latitudine = latitudine;
             this.Longitudine = longitudine;
             this.ImagesID = imagesID;

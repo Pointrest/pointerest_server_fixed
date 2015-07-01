@@ -46,6 +46,7 @@ namespace Repositories
                     //tmp.IDGestore = reader.GetValue<int>("GestoreID");
                     tmp.Nome = reader.GetValue<string>("Nome");
                     tmp.Descrizione = reader.GetValue<string>("descrizione");
+                    tmp.Indirizzo = reader.GetValue<string>("indirizzo");
                     tmp.CategoriaID = reader.GetValue<int>("CategoriaID");
                     tmp.Categoria = reader.GetValue<string>("CategoryName");
                     tmp.SottocategoriaID = reader.GetValue<int>("SottocategoriaID");
@@ -238,6 +239,7 @@ namespace Repositories
                                 ([GestoreID]
                                 ,[Nome]
                                ,[Descrizione]
+                                ,[Indirizzo]
                                 ,[GPSPoint]
                                ,[SottocategoriaID]
                                 ,[IsTombStoned])
@@ -256,6 +258,7 @@ namespace Repositories
                     puntoInteresseCommand.Parameters.Add(new SqlParameter("@GestoreID", gestoreID));
                     puntoInteresseCommand.Parameters.Add(new SqlParameter("@Nome", createCommand.Nome));
                     puntoInteresseCommand.Parameters.Add(new SqlParameter("@Descrizione", createCommand.Descrizione));
+                    puntoInteresseCommand.Parameters.Add(new SqlParameter("@Indirizzo", createCommand.Indirizzo));
                     //puntoInteresseCommand.Parameters.Add(new SqlParameter("@Latitudine", createCommand.Latitudine));
                     //puntoInteresseCommand.Parameters.Add(new SqlParameter("@Longitudine", createCommand.Longitudine));
                     var point = GetPointToInsert(createCommand.Latitudine, createCommand.Longitudine);
@@ -311,6 +314,7 @@ namespace Repositories
                     command.Parameters.Add(new SqlParameter("@IDPuntoInteresse", updateCommand.ID));
                     command.Parameters.Add(new SqlParameter("@Nome", updateCommand.Nome));
                     command.Parameters.Add(new SqlParameter("@Descrizione", updateCommand.Descrizione));
+                    command.Parameters.Add(new SqlParameter("@Indirizzo", updateCommand.Indirizzo));
                     //command.Parameters.Add(new SqlParameter("@Point", GetGeoPoint(updateCommand.Latitudine, updateCommand.Longitudine)));
                     var point = GetPointToInsert(updateCommand.Latitudine, updateCommand.Longitudine);
                     command.Parameters.Add(new SqlParameter("@GPSPoint", point));
@@ -453,8 +457,8 @@ namespace Repositories
                             }
                             userWantedPI.Add(new PIMobileQuery(puntoInteresse.ID, puntoInteresse.Nome, puntoInteresse.CategoriaID
                                                             , puntoInteresse.Categoria, puntoInteresse.SottocategoriaID
-                                                            , puntoInteresse.Sottocategoria, puntoInteresse.Descrizione
-                                                            , puntoInteresse.Latitudine, puntoInteresse.Longitudine, images));
+                                                            , puntoInteresse.Sottocategoria, puntoInteresse.Descrizione, 
+                                                            puntoInteresse.Indirizzo, puntoInteresse.Latitudine, puntoInteresse.Longitudine, images));
                         }
                     }
             }

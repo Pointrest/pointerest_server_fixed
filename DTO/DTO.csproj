@@ -55,6 +55,7 @@
     <Compile Include="Commands\UpdatePuntoInteresseCommand.cs" />
     <Compile Include="Gestore.cs" />
     <Compile Include="ImmaginePuntoInteresse.cs" />
+    <Compile Include="Offerta.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PuntoInteresse.cs" />
     <Compile Include="Queries\ImmaginePIQuery.cs" />
