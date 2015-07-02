@@ -1,0 +1,57 @@
+﻿@{
+    ViewBag.Title = "Offerte";
+}
+<link href="~/Scripts/bootstrap-datepicker/css/bootstrap-datepicker3.css" rel="stylesheet" />
+<link href="~/Content/jasny-bootstrap.min.css" rel="stylesheet" />
+
+<h2>Add Offerta</h2>
+
+<div class="row">
+    <div class="col-md-12">
+        <form>
+            <div class="form-group">
+                <label for="nomeOfferta">Nome Offerta</label>
+                <input type="text" class="form-control" id="nomeOfferta" placeholder="">
+            </div>
+            <div class="form-group">
+                <label for="nomeOfferta">Descrizione Offerta</label>
+                <input type="text" class="form-control" id="descrizioneOfferta" placeholder="">
+            </div>
+            <div class="form-group">
+                <label for="nomeOfferta">Data Inizio</label>
+                <input type="text" class="form-control" id="dataInizio">
+            </div>
+            <div class="form-group">
+                <label for="nomeOfferta">Data Fine</label>
+                <input type="text" class="form-control" id="dataFine">
+            </div>
+            <div class="form-group">
+                <label for="nomeOfferta">Immagine</label>
+                <div class="row">
+                    <div class="fileinput fileinput-new col-md-12" data-provides="fileinput">
+                        <div class="fileinput-new thumbnail" style="width: 200px; height: 150px;">
+                            <img data-src=>
+                            <img src="~/Images/holder.png" alt="Chose Image" />
+                        </div>
+                        <div class="fileinput-preview fileinput-exists thumbnail" style="max-width: 200px; max-height: 150px;"></div>
+                        <div>
+                            <span class="btn btn-default btn-file"><span class="fileinput-new">Select image</span><span class="fileinput-exists">Change</span><input type="file" name="..." id="imageInput"></span>
+                            <a href="#" class="btn btn-default fileinput-exists" data-dismiss="fileinput">Remove</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <div class="row">
+            <div class="col-md-2">
+                <button type="submit" id="inviaOfferta" class="btn btn-default">Invia Offerta</button>
+            </div>
+            <div class="col-md-10">
+                <span id="feedback" style="color:#1aac2d; margin-top:10px;"></span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/jquery-1.10.2.min.js"></script>
+<script src="~/Scripts/addOfferte.js"></script>

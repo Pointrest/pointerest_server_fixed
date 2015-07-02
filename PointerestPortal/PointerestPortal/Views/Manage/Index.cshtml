@@ -28,17 +28,19 @@
             <th></th>
             <th></th>
             <th></th>
+            <th></th>
         </tr>
     </thead>
     <tbody id="puntiInteresseGestore"></tbody>
 </table>
+
 
 <div class="modal fade bs-example-modal-lg" id="imagesModal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title" id="gridSystemModalLabel">Images</h4>
+                <h4 class="modal-title" >Images</h4>
             </div>
             <div class="modal-body">
                 <div class="container-fluid" id="imagesContainer" data-piid="">
@@ -71,7 +73,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title" id="gridSystemModalLabel">Dati del Punto di Interesse</h4>
+                <h4 class="modal-title" >Dati del Punto di Interesse</h4>
             </div>
             <div class="modal-body">
                 <div class="row">
@@ -85,8 +87,7 @@
                     <div class="col-md-12">
                         <div class="row">
                             <div class="col-md-12" id="mapContainer">
-                                <input id="pac-input" class="controls" type="text" placeholder="Search Box">
-                                <div id="map-canvas" />
+                                <!-- Dynamically inserted google map -->
                             </div>
                         </div>
                     </div>
@@ -111,6 +112,3 @@
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCDSkrEjPwkDsoBUKTOCaD_ILvqKByaNhI&v=3.exp&signed_in=true&libraries=places"></script>
 <script src="~/Scripts/googleMap.js"></script>
 <script src="~/Scripts/indexManager.js"></script>
-<script>
-    google.maps.event.addDomListener(window, 'load', initializeMap);
-</script>

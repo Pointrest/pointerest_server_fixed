@@ -13,8 +13,13 @@ namespace PointerestPortal.Controllers
         {
             return View();
         }
-
-        public ActionResult Test()
+        [Authorize]
+        public ActionResult AddOfferte()
+        {
+            return View();
+        }
+        [Authorize]
+        public ActionResult ListOfferte()
         {
             return View();
         }

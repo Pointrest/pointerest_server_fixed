@@ -52,8 +52,8 @@ namespace Repositories
                     tmp.SottocategoriaID = reader.GetValue<int>("SottocategoriaID");
                     tmp.Sottocategoria = reader.GetValue<string>("SubCategoryName");
                     dynamic geoPoint = reader.GetValue(6);
-                    tmp.Latitudine = (double)geoPoint.Long;
-                    tmp.Longitudine = (double)geoPoint.Lat;
+                    tmp.Latitudine = (double)geoPoint.Lat;
+                    tmp.Longitudine = (double)geoPoint.Long;
                     tmp.Images = new List<ImmaginePIQuery>();
 
                     ImmaginePIQuery image = CreateImage(reader);
@@ -254,6 +254,7 @@ namespace Repositories
                                (@GestoreID
                                ,@Nome
                                ,@Descrizione
+                               ,@Indirizzo
                                , geography::STGeomFromText(@GPSPoint,4326) 
                                ,@SottocategoriaID
                                ,0)";
@@ -475,7 +476,7 @@ namespace Repositories
         {
             string lat = latitude.ToString(CultureInfo.InvariantCulture);
             string lon = longitude.ToString(CultureInfo.InvariantCulture);
-            var point = "POINT(" + lat + " " + lon + ")";
+            var point = "POINT(" + lon + " " + lat + ")";
             return point;
         }
     }
