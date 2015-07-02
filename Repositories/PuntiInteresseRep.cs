@@ -100,9 +100,17 @@ namespace Repositories
 
                 using (var command = new SqlCommand(query, connection))
                 {
-                    using (SqlDataReader reader = command.ExecuteReader())
+
+                    try
                     {
-                        AddPIToList(puntiInteresse, reader);
+                        using (SqlDataReader reader = command.ExecuteReader())
+                        {
+                            AddPIToList(puntiInteresse, reader);
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine("{0} Exception caught.", e);
                     }
                 }
             }
@@ -176,9 +184,7 @@ namespace Repositories
                 {
                     using (SqlDataReader reader = command.ExecuteReader())
                     {
-
                         var tmpID = -1;
-
                         while (reader.Read())
                         {
                             var ID = 0;

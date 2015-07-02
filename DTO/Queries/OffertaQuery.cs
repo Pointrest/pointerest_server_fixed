@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DTO
+namespace DTO.Queries
 {
-    public class Offerta
+    public class OffertaQuery
     {
         public int IDOfferta { get; set; }
         public int IDPuntoInteresse { get; set; }
@@ -14,8 +14,11 @@ namespace DTO
         public string Descrizione { get; set; }
         public DateTime DataInizio { get; set; }
         public DateTime DataFine { get; set; }
-        public string Immagine { get; set; }
-        public bool IsTombStoned { get; set; }
+        public string ImmagineOfferta { get; set; }
 
+        public OffertaQuery()
+        {
+
+        }
     }
 }

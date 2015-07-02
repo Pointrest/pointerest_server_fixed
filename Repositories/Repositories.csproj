@@ -58,6 +58,7 @@
     <Compile Include="ImagesRepository.cs" />
     <Compile Include="IRepository.cs" />
     <Compile Include="IUserRepository.cs" />
+    <Compile Include="OffertaRepository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PuntiInteresseRep.cs" />
     <Compile Include="SottocategorieRepository.cs" />
