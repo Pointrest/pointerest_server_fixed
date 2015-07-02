@@ -204,7 +204,7 @@
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ImmaginiController.cs" />
     <Compile Include="Controllers\ManageController.cs" />
-    <Compile Include="Controllers\OfferteController.cs" />
+    <Compile Include="Controllers\OffertaController.cs" />
     <Compile Include="Controllers\PiController.cs" />
     <Compile Include="Controllers\SottocategorieController.cs" />
     <Compile Include="Controllers\UserController.cs" />
