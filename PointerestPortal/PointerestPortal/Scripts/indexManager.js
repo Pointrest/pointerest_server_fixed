@@ -210,12 +210,11 @@ function getGestorePIAndAppendThem() {
         $('.deletePI').on('click', function () {
             var row = $(this).parent().parent('tr');
             var ID = row.attr('data-id');
-            var headers = createHeaders();
 
             $.ajax({
                 url: '/api/pi/' + ID,
                 type: 'DELETE',
-                headers: headers,
+                headers: createHeaders(),
                 success: function (result) {
                     console.log("Cancelled PI " + ID);
                     row.remove();

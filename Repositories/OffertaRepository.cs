@@ -56,12 +56,6 @@ namespace Repositories
 
         public IEnumerable<OffertaQuery> GetAll()
         {
-            return GetAllOff();
-        }
-
-        // ritorna tutte offerte
-        private IEnumerable<OffertaQuery> GetAllOff()
-        {
             List<OffertaQuery> Offerte = new List<OffertaQuery>();
 
             using (var connection = new SqlConnection(mConnectionString))
@@ -81,140 +75,80 @@ namespace Repositories
             return Offerte;
         }
 
-        // ritorna offerte per gestore
-        public IEnumerable<OffertaQuery> Get(string gestoreUsername)
+        public IEnumerable<OffertaQuery> Get(int puntoInteresseID)
         {
             List<OffertaQuery> Offerte = new List<OffertaQuery>();
-            int gestoreID = -1;
-
 
             using (var connection = new SqlConnection(mConnectionString))
             {
                 connection.Open();
 
-                string getGestoreID = @"SELECT [ID]
-                                        FROM [dbo].[Gestori]
-                                        WHERE Gestori.Username = '" + gestoreUsername + "'";
+                string getGestoreID = @"SELECT [IDOfferta]
+                                              ,[Nome]
+                                              ,[Descrizione]
+                                              ,[DataInizio]
+                                              ,[DataFine]
+                                              ,[Immagine]
+                                              ,[IsTombStoned]
+                                          FROM [dbo].[Offerte]
+                                          WHERE IDPuntoInteresse = " + puntoInteresseID +
+                                          "AND IsTombStoned = 0";
 
                 using (var command = new SqlCommand(getGestoreID, connection))
                 {
                     using (SqlDataReader reader = command.ExecuteReader())
-                    {
+                    { 
                         while (reader.Read())
                         {
-                            gestoreID = reader.GetValue<int>("ID");
+                            var offerta = new OffertaQuery();
+                            offerta.IDOfferta = reader.GetValue<int>("IDOfferta");
+                            offerta.Nome = reader.GetValue<string>("Nome");
+                            offerta.Descrizione = reader.GetValue<string>("Descrizione");
+                            offerta.DataInizio = reader.GetValue<DateTime>("DataInizio");
+                            offerta.DataFine = reader.GetValue<DateTime>("DataFine");
+                            offerta.ImmagineOfferta = reader.GetValue<string>("Immagine");
+                            Offerte.Add(offerta);
                         }
-                    }
-                }
-
-                var getOffGestore = @"SELECT * from Offerte
-								    where PuntiInteresse.GestoreID =" + gestoreID +
-                                    @"";
-
-                using (var command = new SqlCommand(getOffGestore, connection))
-                {
-                    using (SqlDataReader reader = command.ExecuteReader())
-                    {
-                        AddOffToList(Offerte, reader);
                     }
                 }
             }
             return Offerte;
         }
 
-
-        public OffertaQuery Get(int id)
+        public void Post(CreateOffertaCommand createCommand)
         {
-            OffertaQuery tmp = null;
             using (var connection = new SqlConnection(mConnectionString))
             {
                 connection.Open();
-
-                string query = @"SELECT * from Offerte 
-                                where Offerte.IDOfferta = " + id;
-
-                using (var command = new SqlCommand(query, connection))
-                {
-                    using (SqlDataReader reader = command.ExecuteReader())
-                    {
-                        var tmpID = -1;
-                        while (reader.Read())
-                        {
-                            var ID = 0;
-                            if (tmpID != (ID = reader.GetValue<int>("IDOfferta")))
-                            {
-                                tmp = new OffertaQuery();
-                                
-                                tmp.Nome = reader.GetValue<string>("Nome");
-                                tmp.Descrizione = reader.GetValue<string>("Descrizione");
-                                tmp.DataInizio = reader.GetValue<DateTime>("DataInizio");
-                                tmp.DataFine = reader.GetValue<DateTime>("DataFine");
-                                tmp.ImmagineOfferta = reader.GetValue<string>("Immagine");
-
-                                //ImmagineOffertaQuery image = CreateImage(reader);
-
-                                tmpID = ID;
-                            }
-                            else
-                            {
-                                tmp.ImmagineOfferta = reader.GetValue<string>("ImmagineOfferta");
-                            }
-                        }
-                    }
-                }
-            }
-            return tmp;
-        }
-
-        public void Post(string gestoreName, CreateOffertaCommand createCommand)
-        {
-            int gestoreID = -1;
-
-            using (var connection = new SqlConnection(mConnectionString))
-            {
-                connection.Open();
-
-                string getGestoreID = @"SELECT [ID]
-                                        FROM [dbo].[Gestori]
-                                        WHERE Gestori.Username = '" + gestoreName + "'";
-
-
-                using (var command = new SqlCommand(getGestoreID, connection))
-                {
-                    using (SqlDataReader reader = command.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            gestoreID = reader.GetValue<int>("ID");
-                        }
-                    }
-                }
 
                 string insertOfferta = @"INSERT INTO [dbo].[Offerte]
-                                ([GestoreID]
-                                ,[Nome]
+                                ([IDPuntoInteresse]
+                               ,[Nome]
                                ,[Descrizione]
-                                ,[Indirizzo]
-                                ,[Immagine]
-                                ,[IsTombStoned])
-                                OUTPUT INSERTED.IDOfferta
+                               ,[DataInizio]
+                               ,[DataFine]
+                               ,[Immagine]
+                               ,[IsTombStoned])
                                 VALUES
-                               (@GestoreID
+                               (@IDPuntoInteresse
                                ,@Nome
                                ,@Descrizione
+                               ,@DataInizio
+                               ,@DataFine
+                               ,@Immagine
                                ,0)";
 
                 SqlTransaction transaction;
                 using (var offertaCommand = new SqlCommand(insertOfferta, connection, transaction = connection.BeginTransaction()))
                 {
-                    offertaCommand.Parameters.Add(new SqlParameter("@IDOfferta", createCommand.IDOfferta));
+                    offertaCommand.Parameters.Add(new SqlParameter("@IDPuntoInteresse", createCommand.IDPuntoInteresse));
                     offertaCommand.Parameters.Add(new SqlParameter("@Nome", createCommand.Nome));
                     offertaCommand.Parameters.Add(new SqlParameter("@Descrizione", createCommand.Descrizione));
                     offertaCommand.Parameters.Add(new SqlParameter("@DataInizio", createCommand.DataInizio));
                     offertaCommand.Parameters.Add(new SqlParameter("@DataFine", createCommand.DataFine));
                     offertaCommand.Parameters.Add(new SqlParameter("@Immagine", createCommand.Immagine));
                     
-                    int lastID = (int)offertaCommand.ExecuteScalar();
+                    int rowAffect = (int)offertaCommand.ExecuteNonQuery();
              
                     transaction.Commit();
                     connection.Close();
@@ -251,17 +185,15 @@ namespace Repositories
             }
         }
 
-
-
         public void Delete(int id)
         {
             using (var connection = new SqlConnection(mConnectionString))
             {
                 connection.Open();
 
-                string query = @"UPDATE [dbo].[Offerta]
-                            SET [IsTombStoned] = 1
-                            WHERE Offerte.IDOfferta = " + id;
+                string query = @"UPDATE [dbo].[Offerte]
+                                SET [IsTombStoned] = 1
+                                WHERE Offerte.IDOfferta = " + id;
 
                 SqlTransaction transaction;
                 using (var command = new SqlCommand(query, connection, transaction = connection.BeginTransaction()))
@@ -273,6 +205,4 @@ namespace Repositories
             }
         }
     }
-
-
 }

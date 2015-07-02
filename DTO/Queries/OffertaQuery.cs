@@ -9,7 +9,6 @@ namespace DTO.Queries
     public class OffertaQuery
     {
         public int IDOfferta { get; set; }
-        public int IDPuntoInteresse { get; set; }
         public string Nome { get; set; }
         public string Descrizione { get; set; }
         public DateTime DataInizio { get; set; }

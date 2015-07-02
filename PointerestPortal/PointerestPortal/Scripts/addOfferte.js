@@ -2,8 +2,8 @@
 
 $(function () {
 
-    $("#dataInizio").datepicker();
-    $("#dataFine").datepicker();
+    $("#dataInizio").datepicker({ format: 'yyyy-mm-dd' });
+    $("#dataFine").datepicker({ format: 'yyyy-mm-dd' });
 
     $('#inviaOfferta').on('click', function() {
         sendNewOfferta();
@@ -30,23 +30,22 @@ function readImage(input) {
 function sendData(image) {
 
     var offerta = {
-        "IDPuntoInterese": getQueryVariable('PI'),
+        "IDPuntoInteresse": getQueryVariable('PI'),
         "Nome": $('#nomeOfferta').val(),
-        "DescrizioneOfferta": $('#descrizioneOfferta').val(),
+        "Descrizione": $('#descrizioneOfferta').val(),
         "DataInizio": $('#dataInizio').val(),
         "DataFine": $('#dataFine').val(),
         "Immagine": image.split(',')[1]
     };
 
     $.ajax({
-        url: 'api/offerte',
+        url: '../api/offerta',
         type: 'POST',
         headers: createHeaders,
         data: offerta,
         success: function (data, textStatus, jqXHR) {
             
-            $('#feedback').text('Offerta inserita correttamente');
+            $('#feedback').text('Offerta inserita correttamente').fadeOut(5000);
         }
     });
-    $('#feedback').text('Offerta inserita correttamente').fadeOut(5000);
 }

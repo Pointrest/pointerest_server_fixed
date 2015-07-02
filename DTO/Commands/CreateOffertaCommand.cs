@@ -8,7 +8,6 @@ namespace DTO.Commands
 {
     public class CreateOffertaCommand
     {
-        public int IDOfferta { get; set; }
         public int IDPuntoInteresse { get; set; }
         public string Nome { get; set; }
         public string Descrizione { get; set; }
