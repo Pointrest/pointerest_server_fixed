@@ -27,6 +27,7 @@ namespace PointerestPortal
 
             bundles.Add(new StyleBundle("~/Content/css").Include(
                       "~/Content/bootstrap.css",
+                      "~/Content/bootstrap-theme",
                       "~/Content/site.css",
                       "~/Content/login.css"));
         }

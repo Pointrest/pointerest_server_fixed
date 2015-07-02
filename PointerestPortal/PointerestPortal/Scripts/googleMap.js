@@ -1,16 +1,18 @@
 ﻿function initializeMap(point) {
 
-    // Initialize Map
     var mapOptions;
     var myLatlng;
+
+    // Initialize Map
     if (point != null) {
         myLatlng = new google.maps.LatLng(point.Lat, point.Lon);
         mapOptions = {
-            zoom: 4,
+            zoom: 8,
             center: myLatlng,
             mapTypeId: google.maps.MapTypeId.ROADMAP
         }
     } else {
+        // Point to Rome
         myLatlng = new google.maps.LatLng(41.896017, 12.493426);
         mapOptions = {
             zoom: 4,
@@ -26,19 +28,20 @@
         new google.maps.LatLng(-33.8902, 151.1759),
         new google.maps.LatLng(-33.8474, 151.2631));
     map.fitBounds(defaultBounds);*/
-
+    var marker
     if (point != null) {
-        var marker = new google.maps.Marker({
+        marker = new google.maps.Marker({
             position: myLatlng,
             map: map,
             title: 'Current Point',
             draggable : true
         });
         marker.setMap(map);
+        markers.push(marker);
 
-        /*google.maps.event.addListener(marker, 'dragend', function (evt) {
+        google.maps.event.addListener(marker, 'dragend', function (evt) {
             stopDragMarker(evt);
-        });*/
+        });
     }
 
     var input = (document.getElementById('pac-input'));
@@ -66,6 +69,7 @@
         }
 
         markers = [];
+
         var bounds = new google.maps.LatLngBounds();
         for (var i = 0, place; place = places[i]; i++) {
             var image = {
