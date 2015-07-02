@@ -26,8 +26,12 @@ namespace PointerestPortal.Controllers
 
         }
 
-        // GET: api/Offerta/5
-        public IEnumerable<OffertaQuery> Get(int id)
+        [Route("api/offerta/pi/{id}/")]
+        public IEnumerable<OffertaQuery> GetByPI(int id)
+        {
+            return _repository.GetOffertePunto(id);
+        }
+        public OffertaQuery Get(int id)
         {
             return _repository.Get(id);
         }
@@ -39,8 +43,9 @@ namespace PointerestPortal.Controllers
         }
 
         // PUT: api/Offerta/5
-        public void Put(int id, [FromBody]string value)
+        public void Put(int id, [FromBody]UpdateOffertaCommand updateCommand)
         {
+            _repository.Put(id, updateCommand);
         }
 
         // DELETE: api/Offerta/5

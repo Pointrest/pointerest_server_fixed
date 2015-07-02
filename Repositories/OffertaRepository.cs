@@ -75,7 +75,7 @@ namespace Repositories
             return Offerte;
         }
 
-        public IEnumerable<OffertaQuery> Get(int puntoInteresseID)
+        public IEnumerable<OffertaQuery> GetOffertePunto(int puntoInteresseID)
         {
             List<OffertaQuery> Offerte = new List<OffertaQuery>();
 
@@ -113,6 +113,43 @@ namespace Repositories
                 }
             }
             return Offerte;
+        }
+
+        public OffertaQuery Get(int offertaID)
+        {
+            using (var connection = new SqlConnection(mConnectionString))
+            {
+                connection.Open();
+
+                string getGestoreID = @"SELECT [Nome]
+                                              ,[Descrizione]
+                                              ,[DataInizio]
+                                              ,[DataFine]
+                                              ,[Immagine]
+                                          FROM [dbo].[Offerte]
+                                          WHERE IDOfferta = " + offertaID +
+                                          "AND IsTombStoned = 0";
+
+                using (var command = new SqlCommand(getGestoreID, connection))
+                {
+                    using (SqlDataReader reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            var offerta = new OffertaQuery();
+                            offerta.Nome = reader.GetValue<string>("Nome");
+                            offerta.Descrizione = reader.GetValue<string>("Descrizione");
+                            offerta.DataInizio = reader.GetValue<DateTime>("DataInizio");
+                            offerta.DataFine = reader.GetValue<DateTime>("DataFine");
+                            offerta.ImmagineOfferta = reader.GetValue<string>("Immagine");
+
+                            connection.Close();
+                            return offerta;
+                        }
+                    }
+                }
+                return null;
+            }
         }
 
         public void Post(CreateOffertaCommand createCommand)
@@ -156,7 +193,7 @@ namespace Repositories
             }
         }
 
-        public void Put(UpdateOffertaCommand updateCommand)
+        public void Put(int offertaID, UpdateOffertaCommand updateCommand)
         {
             using (var connection = new SqlConnection(mConnectionString))
             {
@@ -165,12 +202,14 @@ namespace Repositories
                 string updateOfferta = @"UPDATE [dbo].[PuntiInteresse]
                                                 SET [Nome] = @Nome
                                                 ,[Descrizione] = @Descrizione
-                                                WHERE Offerta.IDOfferta = @IDOfferta";
+                                                ,[DataInizio] = @DataInizio
+                                                ,[DataFine] = @DataFine
+                                                ,[Immagine] = @Immagine 
+                                                WHERE Offerta.IDOfferta = " + offertaID;
 
                 SqlTransaction transaction;
                 using (var command = new SqlCommand(updateOfferta, connection, transaction = connection.BeginTransaction()))
                 {
-                    command.Parameters.Add(new SqlParameter("@IDOfferta", updateCommand.IDOfferta));
                     command.Parameters.Add(new SqlParameter("@Nome", updateCommand.Nome));
                     command.Parameters.Add(new SqlParameter("@Descrizione", updateCommand.Descrizione));
                     command.Parameters.Add(new SqlParameter("@DataInizio", updateCommand.DataInizio));

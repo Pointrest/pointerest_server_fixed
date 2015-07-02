@@ -2,7 +2,7 @@
 
 $(function () {
 
-    $.get('../api/offerta/' + getQueryVariable('PI'), function (data, textStatus, jqXHR) {
+    $.get('../api/offerta/pi/' + getQueryVariable('PI'), function (data, textStatus, jqXHR) {
 
         $.each(data, function (index, element) {
 
@@ -21,10 +21,12 @@ $(function () {
         $('.editOffert').on('click', function () {
 
             $('#editOffertModal').modal();
-            $.get("../api/offerta/" + $(this).parent().parent('tr').attr('data-offertaid')
+            var id = $(this).parent().parent('tr').attr('data-offertaid');
+
+            $.get("../api/offerta/" + id
                 ,function (data, textStatus, jqXHR) {
                 
-                    populateModal(data[0]);
+                    populateModal(data);
             });
         });
 
@@ -60,7 +62,7 @@ function populateModal(element) {
     $('#descrizioneOfferta').val(element.Descrizione);
     $('#dataInizioOfferta').val(element.DataInizio);
     $('#dataFineOfferta').val(element.DataFine);
-    $('#offertaImg').attr('src', 'data:image/jpeg;base64,' + element.Immagine); 
+    $('#offertaImg').attr('src', 'data:image/jpeg;base64,' + element.ImmagineOfferta); 
 }
 
 function sendUpdatedData(image) {
