@@ -22,14 +22,13 @@ $(function () {
 
         $('#addPIButton').on('click', function () {
             $('#dataModal').modal();
+            $('#dataModal').on('shown.bs.modal', function () {
+                initializeMap(null);
+            });
             addPI(gestoreUsername, $('.headField'));
             reInitializeMapContainer();
             
             
-        });
-
-        $('#dataModal').on('shown.bs.modal', function () {
-            initializeMap(null);
         });
 
         getGestorePIAndAppendThem();
@@ -50,7 +49,6 @@ function reInitializeMapContainer() {
 function addPI(gestoreUserName, headField) {
 
     createInputFields(headField);
-
     $('#updatePIData').off('click').on('click', function () {
 
         var addPIData = {
@@ -75,7 +73,6 @@ function addPI(gestoreUserName, headField) {
             }
         });
     });
-
     $('#cancelPIDataUpdate').off('click').click(function () { $('#dataModal').modal('hide'); })
     $('#updatePIData').text('Aggiungi Punto Interesse');
 }
@@ -213,12 +210,11 @@ function getGestorePIAndAppendThem() {
         $('.deletePI').on('click', function () {
             var row = $(this).parent().parent('tr');
             var ID = row.attr('data-id');
-            var headers = createHeaders();
 
             $.ajax({
                 url: '/api/pi/' + ID,
                 type: 'DELETE',
-                headers: headers,
+                headers: createHeaders(),
                 success: function (result) {
                     console.log("Cancelled PI " + ID);
                     row.remove();
@@ -328,7 +324,9 @@ function editPI(piID, categoryID, subcategoryID, headCells, cells) {
         $('#dataContainer').append(div);
     });
 
-    initializeMap(point);
+    $('#dataModal').on('shown.bs.modal', function () {
+        initializeMap(point);
+    });
     $('#pac-input').css("visibility", "visible");
 
     $.each(categorie, function (index, element) {

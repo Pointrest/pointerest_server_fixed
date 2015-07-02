@@ -313,6 +313,7 @@ namespace Repositories
                                                 ,[Descrizione] = @Descrizione
                                                 ,[GPSPoint] = geography::STGeomFromText(@GPSPoint,4326)
                                                 ,[SottocategoriaID] = @SottocategoriaID
+                                                ,[Indirizzo] = @Indirizzo 
                                                 WHERE PuntiInteresse.PuntoInteresseID = @IDPuntoInteresse";
 
                 SqlTransaction transaction;

@@ -15,43 +15,43 @@ namespace PointerestPortal.Controllers
 
         OffertaRepository _repository;
 
-
-        OffertaController()
+        public OffertaController()
         {
             _repository = new OffertaRepository();
         }
         // GET: api/Offerta
-        public List<OffertaQuery> GetAll()
+        public IEnumerable<OffertaQuery> GetAll()
         {
-            return _repository.GetAll().ToList();
+            return _repository.GetAll();
 
         }
 
-        // GET: api/Offerta/5
+        [Route("api/offerta/pi/{id}/")]
+        public IEnumerable<OffertaQuery> GetByPI(int id)
+        {
+            return _repository.GetOffertePunto(id);
+        }
         public OffertaQuery Get(int id)
         {
             return _repository.Get(id);
         }
 
-        public List<OffertaQuery> Get(string username)
-        {
-            return _repository.Get(username).ToList();
-        }
-
         // POST: api/Offerta
-        public void Post(string gestoreusername, CreateOffertaCommand createCommand)
+        public void Post(CreateOffertaCommand createCommand)
         {
-            
+            _repository.Post(createCommand);
         }
 
         // PUT: api/Offerta/5
-        public void Put(int id, [FromBody]string value)
+        public void Put(int id, [FromBody]UpdateOffertaCommand updateCommand)
         {
+            _repository.Put(id, updateCommand);
         }
 
         // DELETE: api/Offerta/5
         public void Delete(int id)
         {
+            _repository.Delete(id);
         }
     }
 }
